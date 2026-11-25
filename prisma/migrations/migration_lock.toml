@@ -1,0 +1,2 @@
+# Migration provider is intentionally fixed; commit this file with future migrations.
+provider = "postgresql"

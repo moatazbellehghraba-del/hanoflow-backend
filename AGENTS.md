@@ -1,0 +1,95 @@
+# HanoFlow backend instructions
+
+## Project and scope
+
+HanoFlow is HanoLink's B2B multi-tenant delivery management SaaS. Its product name may change; keep branding in configuration and out of domain logic. This standalone repository contains the backend only. Update docs/development/PROGRESS.md after every task with changes, verification, decisions, issues, and the next task. Do not claim planned features are implemented.
+
+## Stack
+
+NestJS 12, strict TypeScript, npm, Node 24 LTS, Jest, ESLint, Prettier, Docker and GitHub Actions. PostgreSQL 18/Prisma 7 and code-first GraphQL/Apollo with versioned REST are implemented. Redis connectivity/readiness is implemented. BullMQ queue/worker infrastructure is implemented in Task 1.4.3 without production queues or workers. Authentication and business entities remain planned; introduce them only in separately authorized tasks.
+
+## Architecture and modules
+
+Use a modular monolith, not microservices. Feature modules live in src/modules/<feature>. Infrastructure adapters live in src/infrastructure; cross-cutting HTTP concerns in src/common; environment setup in src/config. Keep controllers thin; put use cases in injectable services when business logic exists. Import another module's public exports; never reach into its private persistence or providers. Do not create speculative abstractions or generic base repositories.
+
+## Coding and dependency injection
+
+Use strict types; avoid any, non-null assertions and unchecked casts. ESM relative imports end in .js. Use constructor injection and Nest provider tokens for interfaces; never instantiate application services manually or use global service locators. Prefer explicit module imports and exports. Only configuration is global by design, with the owner-approved narrow exception for upstream BullMQ internal core/configuration modules. HanoFlow-owned modules must remain non-global. Keep dependencies minimal, reviewed, and locked in package-lock.json. Use npm ci in CI.
+
+## HTTP and security
+
+GraphQL lives only at /graphql, independent of REST /api/v1. Keep resolvers/controllers thin and reuse shared application services. Schema generation is sorted and in memory; do not add runtime file writes or production verification mutations. Every GraphQL DTO needs explicit type decorators and class-validator constraints where applicable. Shared filters/interceptors must check transport before accessing HTTP objects.
+
+Use typed GraphQL context with the request and server-assigned correlation ID; do not fabricate identity or trust client tenant headers. Preserve public machine codes while sanitizing messages/extensions; never return stack traces, raw driver errors or variable values. Keep GraphiQL/introspection disabled outside development and retain body/token/depth/field, batching and CSRF protections. Review cost/rate/authentication/tenant controls with real use cases before exposure. Correlation is not authorization. Resolve the documented production GraphQL Tools advisory through a reviewed compatible change; do not silently add overrides or force peer resolution.
+
+Keep external REST under /api/v1 and apply shared setup to runtime and tests. Request DTOs must use validation decorators; the global ValidationPipe transforms DTOs, strips/rejects unknown fields and omits target/value from validation errors. Do not expose stack traces, secrets, raw configuration or credentials in errors/logs. Validate environment at startup. Do not log request bodies, authorization headers or query strings. Never commit .env or keys. Apply authorization and rate limiting when those features are introduced; never trust tenant IDs supplied by a caller.
+
+## Tenant isolation (planned)
+
+Resolve tenant context from authenticated trusted identity. Scope every tenant-owned read, write, join, background job, cache key, unique constraint and integration to that context. Test cross-tenant access denial, including indirect object references. Platform administration requires explicit separate authorization; never bypass isolation implicitly. Document any deliberate platform-wide access.
+
+## Database and financial integrity (planned)
+
+Use the exported singleton PrismaService through DatabaseModule; never create extra clients in feature code or expose Prisma through controllers. The Prisma 7 ESM client is generated into src/generated/prisma; do not edit or commit generated code. Use prisma.config.ts for CLI connection configuration and the PostgreSQL driver adapter at runtime. Keep CLI, client and adapter on compatible stable major versions; do not follow a prerelease latest tag blindly.
+
+Commit reviewed migrations and migration_lock.toml. Use db:migrate:dev only on disposable development databases; cancel any reset prompt unless reset is explicitly authorized. Use db:migrate:deploy in a controlled release step, never in application startup. Do not replace migration history with db push or delete volumes/data. No meaningful initial SQL migration exists while the schema has no models.
+
+The planned design is a shared PostgreSQL database with tenant-scoped records. Enforce constraints in the database; wrap related writes in transactions with deliberate isolation/concurrency control. Do not use floating point for money; use integer minor units or exact decimals with explicit currency and rounding. COD, settlements and reconciliation require auditable records, idempotent processing and protection from duplicate/concurrent postings. Use transactional outbox patterns when atomic database and event consistency becomes necessary. Tenant entities, constraints, authorization and RLS are not implemented yet.
+
+Keep /health and GraphQL health as dependency-free liveness; /health/ready must query PostgreSQL and Redis and return a safe 503 on either failure. Missing/malformed DATABASE_URL fails startup; an unreachable database leaves the process live but unready. Never log connection strings or raw driver errors. Use TEST_DATABASE_URL for the separate real database suite; do not mock that suite or silently skip it when PostgreSQL is unavailable. Default unit/HTTP tests must remain independent of PostgreSQL and Redis. Override both RedisService and its private REDIS_PROBE_CLIENT provider. The real PostgreSQL suite overrides Redis only and must retain real Prisma connectivity.
+
+## Verification and change management
+
+For this workstation, the existing portable Node 24 runtime is C:\dev-tools\node24. Prepend it to process-local PATH in every independent PowerShell execution before npm commands; verify node/npm versions and process.execPath rather than assuming IDE terminal inheritance. Preserve system Node 22 and permanent PATH. Do not put this workstation path into application code, package engines, npm scripts or CI.
+
+HanoFlow's local PostgreSQL host port defaults to 5434, bound only to 127.0.0.1, with internal port 5432. Existing host services on 5432/5433 are unrelated; never stop or reconfigure them. Preserve local .env secrets. Real integration tests require a distinct hanoflow_test database and enforce loopback, the dedicated port and matching user before connecting. Do not weaken that guard or mock the real suite to obtain passing tests. Restore only HanoFlow's database to a healthy state after outage tests. No dependency version changes without demonstrated need and explicit approval.
+
+Add focused Jest tests for changed behavior; keep unit tests beside source and HTTP integration tests in test/. Use shared application setup so tests enforce runtime conventions. Run npm run format:check, npm run lint, npm run typecheck, npm test and npm run build. For database changes also run db:validate, db:generate and test:db against a dedicated PostgreSQL database when available. Verify startup/health for bootstrap changes. Record failures or unavailable commands accurately. No automatic commits, pushes, remote creation or deployments. Inspect existing code before editing. Stop at the authorized task boundary.
+
+## Redis infrastructure
+
+Use non-global RedisModule and exported RedisService for the dedicated readiness
+probe. Keep Redis at loopback port 6380/database 0 locally; use 6381 only for the dedicated
+isolated integration tests. Never flush unrelated Redis or delete volumes. Preserve
+AOF everysec, noeviction and the dedicated redis-data volume. Probe startup is
+bounded at 2 seconds and PING at 1 second; offline queuing/replay are disabled.
+Do not log URLs, credentials or raw Redis errors. Queue prefix is validated and
+consumed by the approved BullMQ infrastructure. Do not reuse the probe client
+for future producers/workers. No BullMQ packages or queues exist in Task 1.4.2.
+
+## BullMQ foundation
+
+Keep QueuesModule directly imported by AppModule, with no production demo queues.
+Feature queue modules use QueuesModule.registerQueue and explicit @InjectQueue;
+publication goes through QueueRuntime.publish for its outer 2s deadline and safe
+failure behavior. Register each producer once. Workers use registerWorker with
+an injectable QueueProcessor and explicit dependency-module imports, not duplicate
+@Processor/inline registrations. Worker connections retry indefinitely with
+maxRetriesPerRequest null and no short command timeout. Producer command retries
+are finite and offline buffering/replay disabled. Never reuse the readiness client.
+
+One 30s shutdown budget covers managed workers and queues. Preserve root-level
+drain before persistence teardown, blocking-client ownership, cooperative signals
+and forced client disconnect. Do not replace it with only Promise.race or attempt
+to upgrade an already-pending BullMQ close(false) with close(true).
+No real test jobs may run against development Redis. Test-only fixtures are outside
+production; the guarded real Redis suite is separate from offline tests.
+See docs/architecture/QUEUES.md for registration, names, defaults and limitations.
+
+## Real Redis integration safety
+
+Use npm run redis:test:up/inspect/stop and the separate compose.redis-test.yaml
+project, never the development Redis. test:redis requires explicit TEST_REDIS_URL
+exactly redis://127.0.0.1:6381/0 and TEST_REDIS_INSTANCE_ID from ignored
+.env.redis-test. Verify its marker before queue creation; retain verified container
+identity across deliberate outages. Container lifecycle must pass the dedicated
+project/service/image/volume/loopback-binding/instance-ID checks. Never bypass those
+guards, adopt a mismatched instance, flush databases or delete volumes. Cleanup
+must close apps and touch only prefixes generated by the current run.
+
+The real Redis suite overrides PostgreSQL only; preserve real Redis operations.
+The real PostgreSQL suite still requires its actual guarded database. Keep the
+30-second real shutdown test and observable finite polling; do not use forced exit
+to conceal leaked resources. Start owned queue clients after attaching listeners
+and before handing them to BullMQ so cold-start connection failure can recover.
+See docs/development/TESTING.md for commands, CI and actual verification boundaries.

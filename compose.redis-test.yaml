@@ -1,0 +1,29 @@
+name: hanoflow-redis-test
+services:
+  redis-test:
+    image: redis:8.2.11-bookworm
+    environment:
+      HANOFLOW_TEST_INSTANCE_ID: ${TEST_REDIS_INSTANCE_ID:?Initialize with npm run redis:test:up}
+    ports:
+      - '127.0.0.1:6381:6379'
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --appendfsync
+      - everysec
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - noeviction
+    volumes:
+      - redis-test-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 1s
+      retries: 15
+      start_period: 5s
+    stop_grace_period: 30s
+volumes:
+  redis-test-data:
