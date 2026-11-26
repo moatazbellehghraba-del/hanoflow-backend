@@ -1,11 +1,16 @@
-# Core identity database foundation — Task 2.2
+# Core identity database foundation — Tasks 2.2 and 2.3
 
 ## Boundary and approved direction
 
-Only User, Tenant, Membership and AuditEvent persistence is implemented. There
-are no identity endpoints, credentials, sessions, roles, owner assignments,
+User, Tenant, Membership, AuditEvent and PasswordCredential persistence is implemented. There
+are no identity endpoints, sessions, roles, owner assignments,
 invitations, onboarding services or RLS policies. All access remains through the
 existing singleton PrismaService exported by the non-global DatabaseModule.
+
+Task 2.3 adds internal Argon2id password services through non-global IdentityModule,
+with no credential workflows. See [password architecture](PASSWORDS.md) for the
+credential schema, policy, dependency assessment, capacity, rehash strategy and
+actual benchmark. The original core identity migration remains unchanged.
 
 Approved direction: global human identities with multiple company memberships;
 globally unique email login initially and phone authentication later; both
@@ -18,6 +23,7 @@ preservation. These are future requirements, not implemented capabilities.
 ```mermaid
 erDiagram
     User ||--o{ Membership : belongs_through
+    User ||--o| PasswordCredential : has
     Tenant ||--o{ Membership : contains
     User o|--o{ AuditEvent : actor
     Tenant o|--o{ AuditEvent : context
@@ -184,7 +190,8 @@ if the bind is public. Stop its own process after inspection. No Studio UI was u
 for acceptance.
 
 See [testing instructions](../development/TESTING.md) and
-[actual verification](../development/PROGRESS.md). Authentication, credentials,
+[actual verification](../development/PROGRESS.md). Authentication workflows,
 opaque sessions, roles/ownership, both onboarding workflows and staged RLS need
-separate authorization. Task 2.3 has not started. Existing production deployment
+separate authorization. Task 2.3 completes only password primitives/persistence;
+Task 2.4 has not started. Existing production deployment
 restrictions remain unchanged.

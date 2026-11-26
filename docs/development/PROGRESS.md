@@ -4,12 +4,12 @@ Updated: 2026-11-26 (Africa/Lagos).
 
 ## Current phase
 
-Phase 2: core identity persistence implemented through Task 2.2.
+Phase 2: core identity and password credential foundation implemented through Task 2.3.
 Not production-ready; existing deployment restrictions remain in force.
 
 ## Current task
 
-Task 2.2 complete: four identity models, reviewed initial migration, 42 new real PostgreSQL tests and documentation. All 212 tests passed. Production deployment remains blocked. Task 2.3 has not started; await explicit approval.
+Task 2.3 complete: PasswordCredential, reviewed second migration, Argon2id/internal policy and bounded resource management, benchmark and documentation. All 258 tests passed across 20 suites. Production deployment remains blocked. Task 2.4 has not started; await explicit approval.
 
 ## Completed tasks
 
@@ -25,7 +25,7 @@ Task 2.2 complete: four identity models, reviewed initial migration, 42 new real
 
 ## Pending tasks
 
-- Owner review of Task 2.2, then separately authorize Task 2.3. Authentication, trusted tenant context, RBAC/ownership, both onboarding workflows and RLS remain future work.
+- Owner review of Task 2.3, then separately scope and authorize Task 2.4. Compromised/common-password screening, authentication workflows, trusted tenant context, RBAC/ownership, both onboarding workflows and RLS remain future work.
 - Resolve the existing GraphQL Tools production advisory through a reviewed compatible dependency change before deployment; retain all existing exposure restrictions.
 
 ## Technical decisions
@@ -697,3 +697,197 @@ removed, generated/build files remain ignored, and the Git staging area is empty
   Studio can modify data, so inspect only and verify its listener is loopback.
 - No Git staging, commits, pushes, merges or deployments. No Task 2.3 work started.
   Recommend owner review of Task 2.2 before separately specifying/authorizing 2.3.
+
+## Task 2.3 — Password credential foundation (2026-11-26)
+
+### Authorization, review and environment
+
+- Owner confirmed manual Task 2.2 verification/merge and explicitly authorized
+  Task 2.3 only. Clean initial tree, expected branch feature/password-credentials,
+  HEAD 23dd34a (merged core identity), existing four models/migration verified.
+  GitHub's prior success is owner-reported; no GitHub Actions run by this agent.
+- Re-read task attachment, AGENTS, README, progress, identity/database/overview,
+  schema/migrations, target guard, integration tests, configuration, safe error and
+  HTTP logging code, manifest/lock and CI. Portable Node24.22.3/npm11.19.1 at
+  C:\dev-tools\node24 verified; system Node/permanent PATH preserved.
+- Existing PostgreSQL/development Redis/test Redis healthy at loopback
+  5434/6380/6381. Both database URLs passed existing guard plus stricter exact
+  database/port/schema review. Actual databases were hanoflow and hanoflow_test,
+  public schema, PostgreSQL18.7. Both contained the expected core schema and one
+  successfully finished migration with matching original SQL checksum; no drift.
+- Read-only inventories and per-table fingerprints recorded existing data without
+  printing row contents. Both targets had zero User/Tenant/Membership/AuditEvent
+  rows. Those fingerprints remained unchanged through final verification.
+- Initial sandbox registry access was denied by network permissions; the approved
+  network-capable execution succeeded. No dependency install-policy relaxation.
+
+### Dependency assessment and preservation
+
+- Assessed exact approved argon2@0.45.2 using registry metadata, integrity-matched
+  tarball, declarations, upstream implementation and packaged native binaries.
+  Node >=16.17 metadata and Node >=22 tested README both include Node24. N-API8
+  Windows/Linux x64 binaries are bundled. ESM/native load, strict TS6, actual
+  hash/verify and compiled application initialization passed on Windows x64.
+  Linux CI compatibility is supported by package contents/docs, not a local run.
+- Installed exact production dependency with npm install --save-exact argon2@0.45.2.
+  npm warned about six uncovered dependency install hooks. No script approval,
+  allowScripts edit, global protection bypass or native toolchain installation
+  occurred; the bundled Windows native binary worked without the hook approval.
+  If another platform needs new permissions/toolchains, stop for owner review.
+- Only six package entries added: argon2 0.45.2, @phc/format 1.0.0, cross-env10.1.0,
+  @epic-web/invariant1.0.0, node-gyp-build4.8.4 and nested node-addon-api8.9.2.
+  Every existing lockfile version and integrity is unchanged; Prisma override
+  unchanged. Added only benchmark:passwords as an npm script.
+  npm also removed devOptional flags from six existing cross-spawn dependency
+  entries now reachable from production cross-env; their versions/integrities
+  were preserved. This expected dependency classification change was reviewed.
+- npm audit before/after: 18 moderate, one high, zero critical (19 total), same
+  affected packages; no new finding attributed to added packages. Audit exit1
+  reflects these known findings. No unrelated remediation/version changes.
+
+### Schema, migration and private service architecture
+
+- PasswordCredential uses userId UUID as shared primary key/FK: a global user has
+  zero or one credential without a second redundant identifier. No tenantId.
+  Fields: passwordHash varchar512; passwordChangedAt/createdAt/updatedAt
+  timestamptz(3), default now; Prisma maintains updatedAt. No plaintext,
+  confirmation, encryption, duplicated salt/algorithm fields or public DTO.
+- ON DELETE/UPDATE RESTRICT preserves existing user history/deactivation policies.
+  Nonblank hash CHECK bounds minimum storage validity; service checks PHC format
+  and parameters. Schema fields/relationship and limitations in PASSWORDS.md.
+- Reviewed 20261126200000_password_credential adds only the credential table,
+  primary key, restricted FK and nonblank CHECK in BEGIN/COMMIT. Original migration
+  is byte-identical, SHA256
+  2c83680416255de3c430b30238525fc9b02b4dfedf96006e245cec3ccfb93bda.
+  New migration SHA256
+  e431694c00462c397cb225ea0f585b67e1ff751e0c551ad6f6facc40b32e4c9c.
+- Initial migrate diff --from-migrations was refused because a shadow URL was not
+  configured. No shadow was created/authorized. Generated SQL instead with
+  --from-schema (unchanged committed Task2.2 schema) --to-schema new schema,
+  requiring no datasource. Inspected all SQL before application.
+- Guarded test deployment/status/diff passed first, then all 56 real DB tests
+  passed. Rechecked development target, original records/history and expected
+  schema; deployed identical SQL. Both statuses up to date, diffs empty, migration
+  records successfully finished. Final original record fingerprints preserved and
+  credential fixture count zero in both targets. No reset, db push, extension,
+  role, credential/privilege change or destructive operation.
+- Non-global IdentityModule explicitly imported by AppModule exports PasswordPolicy
+  and PasswordHasher only. Native engine and shared capacity are private providers.
+  No extra Prisma client, speculative repository or placeholder auth module.
+
+### Policy, upgrades, failures and resource management
+
+- Fixed new-hash Argon2id v19, 65536 KiB, time3, parallelism1, 32-byte output,
+  library-generated secure 16-byte salts, encoded PHC; async native library verify.
+  No costs weakened for test/benchmark speed, no environment parameter overrides.
+- Structural creation policy: 15–128 Unicode code points, max512 UTF8 bytes,
+  support spaces/Unicode/password managers; reject unpaired surrogates. No trim,
+  Unicode normalization, truncation, composition rules or routine rotation.
+  Combining marks count individually. Verification applies only lossless UTF8 and
+  a 1024-byte safety cap, allowing supported historical shorter passwords.
+- Strict bounded PHC inspection precedes native work: Argon2id v19 only,
+  m19456..65536/t2..3/p1, output32, salt16..32, canonical unpadded base64, maximum
+  encoded length512. Unsupported/excess/malformed inputs do not reach native code.
+  Historical floor follows reviewed OWASP guidance; new hashes always use65536/3/1.
+- Supported historical hashes verify and flag needsUpgrade. No automatic write.
+  Future compare-and-swap must match userId + previous hash (optionally updatedAt),
+  discard zero-count stale rehash, and preserve passwordChangedAt. Real tests show
+  timestamp separation/stale update rejection without creating a workflow.
+- Distinct mismatch/invalid/unsupported results vs sanitized operational/capacity
+  errors. No raw cause, password/hash in errors, logging, audit metadata or benchmark
+  output. Existing filters/loggers omit bodies/variables and raw server errors;
+  no complete redaction claim for authentication transports that do not exist.
+- One active native operation + two FIFO waiters, 1000ms queue-wait expiry,
+  controlled overflow, shared for hashing/verification; release on success/failure.
+  Expiry never starts work or frees an occupied native slot. Module teardown rejects
+  queued/new work; admitted native work finishes, with no fake cancellation.
+  No transaction is held during hashing. Per-app limits do not replace future
+  distributed/per-account abuse controls or deployment memory budgeting.
+
+### Actual benchmark and recommendation
+
+- npm run build then npm run benchmark:passwords succeeded. Offline Nest identity
+  context, synthetic runtime input, warmup hash/verify then20 samples each.
+  Windows x64 10.0.19045, Node24.22.3, npm11.19.1, Intel i7-10750H @2.60GHz,
+  12 logical CPUs, 24370MiB RAM, default libuv pool4; Console Ninja present.
+
+| Operation | Samples | Median   | p95 nearest rank | Maximum  |
+| --------- | ------- | -------- | ---------------- | -------- |
+| Hash      | 20      | 146.35ms | 174.27ms         | 176.57ms |
+| Verify    | 20      | 146.79ms | 182.46ms         | 195.58ms |
+
+- Four simultaneous requests: three completed, one capacity rejection,421.25ms
+  total through one native slot. Unit tests independently observed max active1.
+  RSS baseline102.52MiB, sampled peak165.44MiB, final101.44MiB (5ms sampling).
+- Recommend implemented one-active/two-waiting as conservative initial admission:
+  about64MiB active Argon2 work memory, bounded queue and observed modest latency.
+  No parameter reduction justified. Small sample, sampled whole-process RSS and
+  one local burst are not production capacity guarantees; load-test deployment
+  hardware before increasing concurrency.
+
+### Actual regression verification
+
+| Command/check                                     | Result                                                       | Reported duration         |
+| ------------------------------------------------- | ------------------------------------------------------------ | ------------------------- |
+| Focused password unit tests                       | 3 suites,36/36 passed                                        | 3.923s                    |
+| npm test (complete offline layer)                 | 16 suites,191/191 passed                                     | 11.777s                   |
+| npm run test:db                                   | 3 suites,56/56 passed                                        | 5.973s                    |
+| npm run test:redis                                | 1 suite,11/11 passed, normal exit with detectOpenHandles     | 60.796s                   |
+| Complete total                                    | 20 suites,258/258 passed; original212 preserved,46 added     | Per-layer durations above |
+| Prisma format/validate/generate                   | Passed; ignored client7.10.1 regenerated                     | —                         |
+| npm run typecheck / lint / build                  | Passed                                                       | —                         |
+| npm ls --all --json                               | Passed, no existing version/integrity changes                | —                         |
+| npm audit before/after                            | Same19 known findings, no unrelated remediation              | —                         |
+| Migration status/schema diff test and development | Up to date/empty; both reviewed SQL checksums verified       | —                         |
+| Compiled production AppModule/bootstrap setup     | Initialized/listened on ephemeral loopback; normal app.close | —                         |
+| Compiled REST liveness/readiness                  | 200/200, real database and development Redis up              | —                         |
+| Compiled GraphQL health                           | 200, data.health.status ok                                   | —                         |
+| node --check scripts/benchmark-passwords.mjs      | Passed                                                       | —                         |
+
+New coverage:36 offline hashing/policy/capacity tests and10 real credential tests.
+Existing identity catalog assertions were extended for the approved second
+migration/table/check/FK/index, keeping all original cases. Native tests use actual
+candidate costs. DB-error assertions retain only machine codes to avoid printing
+credential arguments; fixture cleanup targets only run-owned UUIDs. No snapshots
+or live credentials. Default tests require no live PostgreSQL/Redis.
+
+Existing Redis regression observed retry gaps1012/2006ms and active shutdown29029ms.
+Only isolated test Redis was restarted, then healthy identity verified. Development
+PostgreSQL start time still2026-11-26T18:03:22.348485469Z; development Redis still
+2026-11-26T18:03:22.110054088Z. Original bindings/volumes preserved; no development
+test jobs or unrelated service changes. No CI file changes were necessary; Linux
+execution/GitHub Actions were not performed by this agent.
+
+Final npm run format:check and git diff --check passed. Temporary helpers were
+removed, generated/build files remain ignored, and the staging area is empty.
+
+### Files, manual verification and remaining requirements
+
+- Created src/modules/identity/identity.module.ts and passwords/ configuration,
+  errors, policy, PHC inspection, native engine, capacity and hashing services with
+  three focused spec files; test/password-credential.database-spec.ts;
+  prisma/migrations/20261126200000_password_credential/migration.sql;
+  scripts/benchmark-passwords.mjs; docs/architecture/PASSWORDS.md.
+- Modified schema, AppModule, identity catalog test expectations, package manifest/
+  lock, README, AGENTS, IDENTITY/DATABASE/OVERVIEW architecture, TESTING and this
+  progress record. Generated client/build output remain ignored. Temporary review,
+  previous-schema, migration and smoke helpers removed before handoff.
+- Manual commands and guarded migration instructions are in PASSWORDS.md. Start
+  from existing distinct dev/test URLs; run quality gates, npm test, test:db,
+  redis:test:inspect/test:redis; build then benchmark:passwords. Inspect schema/
+  timestamps only, never print or export credential hashes. No Studio credential
+  inspection or public password endpoint exists for manual use.
+- Technical defaults beyond explicit candidate guidance: shared userId primary
+  key,512-byte new/1024-byte verification bounds, strict supported historical
+  PHC window, one-active/two-waiting/1s admission and controlled failure contracts.
+  These do not weaken the new-hash candidate or implement a product workflow.
+- Compromised/common-password screening needs an approved dataset or service with
+  privacy/failure policy. It must run in future password creation/change use cases
+  before hashing, separately from verification. No unapproved dependency/service
+  or fake screening was added; password policy is NOT production-complete.
+- Existing production GraphQL security/deployment restrictions remain unchanged.
+  Future authentication still needs transport redaction, timing/abuse protections,
+  sessions, safe credential persistence and conditional rehash use cases. Roles,
+  ownership, onboarding, tenant context/RLS and all Task2.4 scope remain future.
+- No staging, commits, pushes, merges or deployments. Recommend owner review of
+  Task2.3 before separately scoping/authorizing Task2.4; Task2.4 has not started.

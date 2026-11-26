@@ -1,6 +1,6 @@
 # Backend architecture
 
-## Existing implementation - Tasks 1.1 through 2.2
+## Existing implementation - Tasks 1.1 through 2.3
 
 A single NestJS 12 process with Express transport and strict TypeScript/ESM. AppModule imports global validated ConfigModule, HealthModule and non-global QueuesModule, and registers a global HTTP exception filter. HealthModule owns GET /api/v1/health, returning only { "status": "ok" }, and GET /api/v1/health/ready, which queries PostgreSQL and Redis and returns 503 on either dependency failure. REST and GraphQL liveness remain dependency-free.
 
@@ -11,6 +11,11 @@ src/config owns validated environment and bootstrap conventions. src/common/filt
 ApiGraphqlModule owns code-first Apollo configuration, generating a sorted schema in memory and serving only /graphql independently of REST prefix/versioning. HealthResolver and HealthController share HealthService liveness logic. Typed request context carries the request and correlation ID, not identity. GraphQL uses its standard response shape and safe error codes; REST preserves its existing envelope. Development-only tooling/introspection, bounded requests, CSRF checks and disabled batching form an initial security foundation, not a production-security guarantee. See [API architecture](API.md) for policies, deferred authentication/tenant/cost controls and the unresolved transitive production advisory.
 
 Task 1.2.1 standardizes the dedicated local PostgreSQL host binding to 127.0.0.1:5434 (container port 5432). Development and integration tests use separate logical databases, hanoflow and hanoflow_test, inside that Compose project. Test target safeguards reject unrelated hosts/ports and shared development/test targets before connecting. Existing PostgreSQL services on host ports 5432/5433 remain separate. Windows development uses a process-local Node 24 activation; there is no workstation-specific runtime path in application code or CI.
+
+Task 2.3 adds PasswordCredential persistence and the non-global IdentityModule,
+explicitly imported by AppModule. It exports internal password policy/hashing
+services with private native engine/capacity providers. No public model, endpoint,
+authentication workflow or extra Prisma client is created. See [password architecture](PASSWORDS.md).
 
 ## Planned architecture — not implemented
 
@@ -50,4 +55,5 @@ See [testing and CI](../development/TESTING.md) and PROGRESS.md for acceptance s
 Phase 1 local acceptance passed in Task 1.4.4: 170 tests plus required quality and
 compiled health checks. This is functional local-development closure only, not
 production readiness. The existing advisory/exposure restrictions remain; Phase 2
-was separately approved for Task 2.2 identity persistence. Task 2.3 has not started.
+was separately approved through Task 2.3 identity/password persistence and internal
+password primitives. Task 2.4 has not started.

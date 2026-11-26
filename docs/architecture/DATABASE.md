@@ -34,6 +34,14 @@ Task 2.2 introduces User, Tenant, Membership and minimum AuditEvent through the 
 
 The first migration was generated with `migrate diff --from-empty --to-schema prisma/schema.prisma --script`, reviewed and enriched with eight SQL-only CHECK constraints plus canonical email C collation, then deployed to the guarded test database before development. Both targets were verified empty by actual catalog/data inventory first. No shadow database, extension or additional privileges were needed. Future incremental changes must use a separately reviewed source/method; never use from-empty against an existing schema. db:migrate:dev requires a disposable environment and approved shadow database; do not accept reset prompts or assume privilege authorization. Release automation uses db:migrate:deploy with suitable migration privileges and backups, independently of application startup. Do not use db push, modify applied history or delete volumes/data; use forward corrective migrations.
 
+Task 2.3 adds the second reviewed migration, 20261126200000_password_credential,
+with one shared-primary-key credential table, restricted FK and nonblank hash
+CHECK. It was generated from old/new Prisma schemas without a shadow database,
+tested on guarded hanoflow_test, then applied to development after fresh safety
+checks. The core migration and existing records remain unchanged. See
+[password persistence](PASSWORDS.md) for field definitions, timestamp separation,
+conditional rehash updates and sensitive-data boundaries.
+
 ## Tests and actual verification
 
 Default unit/HTTP tests use a fake URL and an overridden Prisma provider; they verify lifecycle, DI, safe failure behavior and readiness responses without PostgreSQL. The separate test:db suites use real PrismaService, explicitly required TEST_DATABASE_URL, connectivity/readiness and identity constraint tests. Identity tests write only uniquely identified owned fixtures and delete only those exact IDs; direct SQL fixture insertion is rolled back. No truncate/reset or arbitrary data cleanup occurs. Missing configuration/connectivity fails rather than silently skipping. CI migrates its ephemeral test database before the suites. See PROGRESS.md for executed local checks; configured CI is not evidence of a completed GitHub run.

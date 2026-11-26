@@ -430,7 +430,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     >`
       SELECT migration_name, checksum, finished_at, rolled_back_at FROM "_prisma_migrations" ORDER BY migration_name
     `;
-    expect(rows).toHaveLength(1);
+    expect(rows).toHaveLength(2);
     expect(rows[0]).toMatchObject({
       migration_name: migrationName,
       checksum: createHash('sha256')
@@ -441,6 +441,18 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       rolled_back_at: null,
     });
     expect(rows[0]?.finished_at).toBeInstanceOf(Date);
+    expect(rows[1]).toMatchObject({
+      migration_name: '20261126200000_password_credential',
+      checksum: createHash('sha256')
+        .update(
+          readFileSync(
+            'prisma/migrations/20261126200000_password_credential/migration.sql',
+          ),
+        )
+        .digest('hex'),
+      rolled_back_at: null,
+    });
+    expect(rows[1]?.finished_at).toBeInstanceOf(Date);
   });
 
   it('contains exactly the approved tables, checks, indexes and restricted foreign keys', async () => {
@@ -450,6 +462,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     expect(tables.map((row) => row.tablename)).toEqual([
       'AuditEvent',
       'Membership',
+      'PasswordCredential',
       'Tenant',
       'User',
       '_prisma_migrations',
@@ -466,6 +479,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
         'AuditEvent_scope_check',
         'Membership_removal_chronology_check',
         'Membership_removedAt_check',
+        'PasswordCredential_hash_check',
         'Tenant_name_check',
         'Tenant_slug_check',
         'User_canonicalEmail_check',
@@ -482,6 +496,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
         'AuditEvent_tenantId_fkey',
         'Membership_tenantId_fkey',
         'Membership_userId_fkey',
+        'PasswordCredential_userId_fkey',
       ].map((conname) => ({ conname, confdeltype: 'r', confupdtype: 'r' })),
     );
     const indexes = await prisma.$queryRaw<Array<{ indexname: string }>>`
@@ -497,6 +512,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       'Membership_tenantId_status_id_idx',
       'Membership_tenantId_userId_key',
       'Membership_userId_status_idx',
+      'PasswordCredential_pkey',
       'Tenant_pkey',
       'Tenant_slug_key',
       'User_canonicalEmail_key',

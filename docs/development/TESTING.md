@@ -40,6 +40,23 @@ No new offline test duplicates database constraints. The existing offline layer
 continues to verify guards, configuration, dependency-free health and lifecycle.
 CI deploys migrations specifically to its ephemeral test URL before test:db.
 
+## Password tests and benchmarks
+
+Task 2.3 adds 36 offline password tests with real native Argon2 and controlled
+capacity/failure fixtures, plus 10 guarded PostgreSQL credential tests. Creation
+policy, Unicode, exact parameters, historical verification, PHC resource bounds,
+capacity overflow/timeout/release, one-to-one/FK/timestamps and stale rehash support
+are covered. Existing identity catalog tests now expect the additional reviewed
+migration/table/constraint without losing their original assertions. Default
+tests still require neither PostgreSQL nor Redis. Only exact run-owned UUIDs are
+removed in the real DB suite, with credentials before users. Assertions never
+dump PHC values or raw credential Prisma errors. No secret snapshots are used.
+
+`npm run build`, then `npm run benchmark:passwords`, performs the separate offline
+synthetic benchmark with aggregate output only. See PASSWORDS.md and PROGRESS.md
+for actual environment, counts, durations and limits; benchmarking is not CI load
+testing or production sizing. No CI job changes were needed for Task 2.3.
+
 ## Dedicated Redis test environment
 
 Run from the backend repository:

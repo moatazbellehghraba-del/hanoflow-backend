@@ -43,15 +43,27 @@ enum AuditOutcome {
 
 // Reviewed SQL adds email normalization checks and canonicalEmail COLLATE "C".
 model User {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email           String       @db.VarChar(254)
-  canonicalEmail  String       @unique @db.VarChar(254)
-  status          UserStatus   @default(PENDING)
-  emailVerifiedAt DateTime?    @db.Timestamptz(3)
-  createdAt       DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime     @default(now()) @updatedAt @db.Timestamptz(3)
-  memberships     Membership[]
-  auditEvents     AuditEvent[]
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email              String              @db.VarChar(254)
+  canonicalEmail     String              @unique @db.VarChar(254)
+  status             UserStatus          @default(PENDING)
+  emailVerifiedAt    DateTime?           @db.Timestamptz(3)
+  createdAt          DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime            @default(now()) @updatedAt @db.Timestamptz(3)
+  memberships        Membership[]
+  auditEvents        AuditEvent[]
+  passwordCredential PasswordCredential?
+}
+
+// Shared primary key enforces zero-or-one credential per global user.
+// Rehash changes passwordHash/updatedAt, never passwordChangedAt.
+model PasswordCredential {
+  userId            String   @id @db.Uuid
+  passwordHash      String   @db.VarChar(512)
+  passwordChangedAt DateTime @default(now()) @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
 }
 
 // Reviewed SQL adds nonblank name and normalized slug checks.
