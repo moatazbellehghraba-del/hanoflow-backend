@@ -1,6 +1,6 @@
 # HanoFlow backend
 
-A standalone NestJS modular monolith for HanoLink's planned multi-tenant delivery management platform. The application foundation, PostgreSQL/Prisma infrastructure and hybrid GraphQL/REST API infrastructure are implemented. Redis connectivity/readiness and BullMQ queue/worker infrastructure are implemented without production queue or worker registration. Task 2.2 adds User, Tenant, Membership and minimum AuditEvent persistence only. Authentication, authorization, onboarding workflows and business operations are not implemented. See [identity architecture](docs/architecture/IDENTITY.md).
+A standalone NestJS modular monolith for HanoLink's planned multi-tenant delivery management platform. The application foundation, PostgreSQL/Prisma infrastructure and hybrid GraphQL/REST API infrastructure are implemented. Redis connectivity/readiness and BullMQ queue/worker infrastructure are implemented without production queue or worker registration. Task 2.2 adds User, Tenant, Membership and minimum AuditEvent persistence only. Public authentication/authorization endpoints, onboarding workflows and business operations are not implemented. See [identity architecture](docs/architecture/IDENTITY.md).
 
 Task 2.3 adds PasswordCredential persistence and a non-global internal identity
 module with Argon2id hashing/verification, structural password policy, upgrade
@@ -9,8 +9,11 @@ See [password architecture and benchmark](docs/architecture/PASSWORDS.md).
 
 Task 2.4 adds internal PostgreSQL-backed identity sessions, digest-only opaque
 access/refresh tokens, transactional rotation/replay revocation and safe audit
-events. There are no public authentication transports, guards or tenant session
-contexts. See [session architecture](docs/architecture/SESSIONS.md).
+events. There are no public authentication transports or guards. See [session architecture](docs/architecture/SESSIONS.md).
+
+Task 2.5 adds tenant RBAC, runtime-proven tenant contexts, both-credential context
+rotation and transactional owner/delegation protections. No RLS or business-resource
+authorization is claimed. See [authorization architecture](docs/architecture/AUTHORIZATION.md).
 
 ## Requirements and setup
 
@@ -228,4 +231,4 @@ testing exposed cached first-connect rejection; the corrected owned-client hando
 now recovers on the same app. Build, static gates, Prisma validation and compiled
 REST/GraphQL smoke checks passed. Phase 1 is functionally complete for local
 development only. GitHub Actions was not run; deployment remains blocked and
-Phase 2 identity/password persistence and internal session/token operations are implemented through Task 2.4; see [identity architecture](docs/architecture/IDENTITY.md), [password architecture](docs/architecture/PASSWORDS.md), [session architecture](docs/architecture/SESSIONS.md) and PROGRESS.md. Task 2.5 requires separate approval. Compromised-password screening remains required before a complete production password policy can be claimed.
+Phase 2 identity/password persistence and internal session/token operations are implemented through Task 2.5; see [identity architecture](docs/architecture/IDENTITY.md), [password architecture](docs/architecture/PASSWORDS.md), [session architecture](docs/architecture/SESSIONS.md) and PROGRESS.md. Task 2.6 requires separate approval. Compromised-password screening remains required before a complete production password policy can be claimed.

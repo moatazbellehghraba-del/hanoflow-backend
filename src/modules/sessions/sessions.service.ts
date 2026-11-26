@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma, Session } from '../../generated/prisma/client.js';
 import { PrismaService } from '../../infrastructure/database/prisma.service.js';
 import { SessionAuditWriter } from '../audit/session-audit.writer.js';
+import { TenantAuditWriter } from '../audit/tenant-audit.writer.js';
 import { TokenSecrets } from './token-secrets.js';
 import {
   activityTimes,
@@ -29,7 +30,9 @@ export type SessionValidation =
       status: 'valid';
       userId: string;
       sessionId: string;
-      scope: 'IDENTITY';
+      scope: 'IDENTITY' | 'TENANT';
+      tenantId?: string;
+      membershipId?: string;
       contextVersion: number;
     }
   | { status: 'invalid' };
@@ -49,6 +52,7 @@ export class SessionsService {
     private readonly prisma: PrismaService,
     private readonly tokens: TokenSecrets,
     private readonly audit: SessionAuditWriter,
+    private readonly tenantAudit: TenantAuditWriter,
   ) {}
 
   private async transaction<T>(operation: (tx: Tx) => Promise<T>): Promise<T> {
@@ -139,6 +143,7 @@ export class SessionsService {
     });
     await tx.refreshToken.create({
       data: {
+        contextVersion: session.contextVersion,
         sessionId: session.id,
         digest: refresh.digest,
         createdAt: now,
@@ -198,39 +203,54 @@ export class SessionsService {
   }
 
   async validateAccess(raw: string): Promise<SessionValidation> {
+    if (!this.tokens.digest(raw, 'access')) return { status: 'invalid' };
+    return this.transaction((tx) => this.validateAccessIn(tx, raw));
+  }
+
+  // Public internal transaction boundary for Authorization; callers cannot bypass
+  // credential checks by supplying a fabricated SessionValidation object.
+  async validateAccessIn(
+    tx: Tx,
+    raw: string,
+    tenantWrite = false,
+  ): Promise<SessionValidation> {
     const digest = this.tokens.digest(raw, 'access');
     if (!digest) return { status: 'invalid' };
-    return this.transaction(async (tx) => {
-      const token = await tx.accessToken.findUnique({
-        where: { digest },
-        select: {
-          sessionId: true,
-          contextVersion: true,
-          expiresAt: true,
-          session: { select: { userId: true } },
-        },
-      });
-      if (!token) return { status: 'invalid' };
-      const user = await this.lockUser(tx, token.session.userId, true);
-      const session = await this.lockSession(tx, token.sessionId, true);
-      const now = await this.now(tx);
-      if (
-        !session ||
-        !this.eligible(user) ||
-        !this.relevant(session, now) ||
-        isExpired(token.expiresAt, now) ||
-        token.contextVersion !== session.contextVersion ||
-        session.scope !== 'IDENTITY'
-      )
-        return { status: 'invalid' };
-      return {
-        status: 'valid',
-        userId: session.userId,
-        sessionId: session.id,
-        scope: 'IDENTITY',
-        contextVersion: session.contextVersion,
-      };
+    const token = await tx.accessToken.findUnique({
+      where: { digest },
+      select: {
+        sessionId: true,
+        contextVersion: true,
+        expiresAt: true,
+        session: { select: { userId: true } },
+      },
     });
+    if (!token) return { status: 'invalid' };
+    const user = await this.lockUser(tx, token.session.userId, true);
+    const session = await this.lockSession(tx, token.sessionId, true);
+    const contextEligible = session
+      ? await this.contextEligible(tx, session, tenantWrite)
+      : false;
+    const now = await this.now(tx);
+    if (
+      !session ||
+      !this.eligible(user) ||
+      !this.relevant(session, now) ||
+      isExpired(token.expiresAt, now) ||
+      token.contextVersion !== session.contextVersion ||
+      !contextEligible
+    )
+      return { status: 'invalid' };
+    return {
+      status: 'valid',
+      userId: session.userId,
+      sessionId: session.id,
+      scope: session.scope,
+      ...(session.scope === 'TENANT' && session.tenantId && session.membershipId
+        ? { tenantId: session.tenantId, membershipId: session.membershipId }
+        : {}),
+      contextVersion: session.contextVersion,
+    };
   }
 
   async refresh(raw: string, correlationId: string): Promise<SessionIssuance> {
@@ -248,9 +268,17 @@ export class SessionsService {
       if (!located) return { status: 'invalid' };
       const user = await this.lockUser(tx, located.session.userId);
       const session = await this.lockSession(tx, located.sessionId);
+      const contextEligible = session
+        ? await this.contextEligible(tx, session)
+        : false;
       const rows = await tx.$queryRaw<
-        Array<{ id: string; consumedAt: Date | null; expiresAt: Date }>
-      >`SELECT id,"consumedAt","expiresAt" FROM "RefreshToken" WHERE id=${located.id}::uuid FOR UPDATE`;
+        Array<{
+          id: string;
+          consumedAt: Date | null;
+          expiresAt: Date;
+          contextVersion: number;
+        }>
+      >`SELECT id,"consumedAt","expiresAt","contextVersion" FROM "RefreshToken" WHERE id=${located.id}::uuid FOR UPDATE`;
       const token = rows[0];
       const now = await this.now(tx);
       if (!session || !token || !this.relevant(session, now))
@@ -270,7 +298,12 @@ export class SessionsService {
         // Return commits revocation/audit before reporting replay; do NOT throw here.
         return { status: 'replay' };
       }
-      if (!this.eligible(user) || isExpired(token.expiresAt, now))
+      if (
+        !this.eligible(user) ||
+        !contextEligible ||
+        token.contextVersion !== session.contextVersion ||
+        isExpired(token.expiresAt, now)
+      )
         return { status: 'invalid' };
       await tx.refreshToken.update({
         where: { id: token.id },
@@ -292,6 +325,146 @@ export class SessionsService {
         kind: 'rotated',
         userId: session.userId,
         sessionId: session.id,
+        correlationId,
+      });
+      return issued;
+    });
+  }
+
+  private async contextEligible(
+    tx: Tx,
+    session: Session,
+    write = false,
+  ): Promise<boolean> {
+    if (session.scope === 'IDENTITY')
+      return session.tenantId === null && session.membershipId === null;
+    if (!session.tenantId || !session.membershipId) return false;
+    const tenants = write
+      ? await tx.$queryRaw<
+          Array<{ status: string }>
+        >`SELECT status::text FROM "Tenant" WHERE id=${session.tenantId}::uuid FOR UPDATE`
+      : await tx.$queryRaw<
+          Array<{ status: string }>
+        >`SELECT status::text FROM "Tenant" WHERE id=${session.tenantId}::uuid FOR SHARE`;
+    const members = await tx.$queryRaw<
+      Array<{ status: string }>
+    >`SELECT status::text FROM "Membership" WHERE id=${session.membershipId}::uuid AND "tenantId"=${session.tenantId}::uuid AND "userId"=${session.userId}::uuid FOR SHARE`;
+    return tenants[0]?.status === 'ACTIVE' && members[0]?.status === 'ACTIVE';
+  }
+
+  async selectTenant(
+    accessRaw: string,
+    refreshRaw: string,
+    tenantId: string,
+    correlationId: string,
+  ): Promise<SessionIssuance> {
+    const accessDigest = this.tokens.digest(accessRaw, 'access');
+    const refreshDigest = this.tokens.digest(refreshRaw, 'refresh');
+    if (
+      !accessDigest ||
+      !refreshDigest ||
+      !uuid.test(tenantId) ||
+      !uuid.test(correlationId)
+    )
+      return { status: 'invalid' };
+    return this.transaction(async (tx) => {
+      const access = await tx.accessToken.findUnique({
+        where: { digest: accessDigest },
+        select: { sessionId: true, contextVersion: true, expiresAt: true },
+      });
+      const refresh = await tx.refreshToken.findUnique({
+        where: { digest: refreshDigest },
+        select: {
+          id: true,
+          sessionId: true,
+          session: { select: { userId: true } },
+        },
+      });
+      if (!access || !refresh || access.sessionId !== refresh.sessionId)
+        return { status: 'invalid' };
+      const user = await this.lockUser(tx, refresh.session.userId);
+      const session = await this.lockSession(tx, refresh.sessionId);
+      if (!session) return { status: 'invalid' };
+      for (const id of [
+        ...new Set([tenantId, ...(session.tenantId ? [session.tenantId] : [])]),
+      ].sort())
+        await tx.$queryRaw`SELECT id FROM "Tenant" WHERE id=${id}::uuid FOR SHARE`;
+      const currentEligible = await this.contextEligible(tx, session);
+      const candidates = await tx.$queryRaw<
+        Array<{ id: string; status: string }>
+      >`SELECT id,status::text FROM "Membership" WHERE "tenantId"=${tenantId}::uuid AND "userId"=${session.userId}::uuid FOR SHARE`;
+      const tenants = await tx.tenant.findUnique({
+        where: { id: tenantId },
+        select: { status: true },
+      });
+      const rows = await tx.$queryRaw<
+        Array<{
+          consumedAt: Date | null;
+          expiresAt: Date;
+          contextVersion: number;
+        }>
+      >`SELECT "consumedAt","expiresAt","contextVersion" FROM "RefreshToken" WHERE id=${refresh.id}::uuid FOR UPDATE`;
+      const token = rows[0];
+      const now = await this.now(tx);
+      if (
+        !token ||
+        !this.eligible(user) ||
+        !this.relevant(session, now) ||
+        isExpired(access.expiresAt, now)
+      )
+        return { status: 'invalid' };
+      if (token.consumedAt !== null) {
+        await tx.session.update({
+          where: { id: session.id },
+          data: { revokedAt: now, revocationReason: 'REFRESH_REPLAY' },
+          select: { id: true },
+        });
+        await this.audit.write(tx, {
+          kind: 'refresh_replay',
+          userId: session.userId,
+          sessionId: session.id,
+          correlationId,
+        });
+        return { status: 'replay' };
+      }
+      const member = candidates[0];
+      if (
+        !currentEligible ||
+        !member ||
+        member.status !== 'ACTIVE' ||
+        tenants?.status !== 'ACTIVE' ||
+        access.contextVersion !== session.contextVersion ||
+        token.contextVersion !== session.contextVersion ||
+        isExpired(token.expiresAt, now)
+      )
+        return { status: 'invalid' };
+      await tx.refreshToken.update({
+        where: { id: refresh.id },
+        data: { consumedAt: now },
+        select: { id: true },
+      });
+      const times = activityTimes(
+        now,
+        session.absoluteExpiresAt,
+        policyFor(session.client),
+      );
+      const selected = await tx.session.update({
+        where: { id: session.id },
+        data: {
+          scope: 'TENANT',
+          tenantId,
+          membershipId: member.id,
+          contextVersion: { increment: 1 },
+          lastActivityAt: now,
+          idleExpiresAt: times.idleExpiresAt,
+        },
+      });
+      const issued = await this.issue(tx, selected, now, refresh.id);
+      await this.tenantAudit.write(tx, {
+        kind: 'context_selected',
+        tenantId,
+        userId: session.userId,
+        targetId: session.id,
         correlationId,
       });
       return issued;

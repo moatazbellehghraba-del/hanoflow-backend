@@ -1,6 +1,6 @@
 # Backend architecture
 
-## Existing implementation - Tasks 1.1 through 2.4
+## Existing implementation - Tasks 1.1 through 2.5
 
 A single NestJS 12 process with Express transport and strict TypeScript/ESM. AppModule imports global validated ConfigModule, HealthModule and non-global QueuesModule, and registers a global HTTP exception filter. HealthModule owns GET /api/v1/health, returning only { "status": "ok" }, and GET /api/v1/health/ready, which queries PostgreSQL and Redis and returns 503 on either dependency failure. REST and GraphQL liveness remain dependency-free.
 
@@ -21,6 +21,12 @@ Task 2.4 adds non-global SessionsModule/AuditModule and PostgreSQL session/acces
 refresh records. Only internal identity-only establishment, validation, strict
 rotation/replay revocation and narrow audit writing exist. No public authentication
 transport or authorization is provided. See [session architecture](SESSIONS.md).
+
+Task 2.5 adds AuthorizationModule -> SessionsModule/DatabaseModule/AuditModule,
+with no reverse Authorization dependency from Sessions. TenantAuditWriter supports
+scoped security mutations. Internal RBAC, trusted tenant selection and owner
+invariants are implemented; public guards, business-resource policies and RLS are
+not. See [authorization architecture](AUTHORIZATION.md).
 
 ## Planned architecture — not implemented
 
@@ -62,4 +68,4 @@ compiled health checks. This is functional local-development closure only, not
 production readiness. The existing advisory/exposure restrictions remain; Phase 2
 was separately approved through Task 2.3 identity/password persistence and internal
 password primitives. Task 2.4 separately adds internal sessions and opaque-token
-rotation; Task 2.5 has not started.
+rotation; Task 2.5 adds internal RBAC and trusted tenant contexts. Task 2.6 has not started.
