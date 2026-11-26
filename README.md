@@ -1,6 +1,6 @@
 # HanoFlow backend
 
-A standalone NestJS modular monolith for HanoLink's planned multi-tenant delivery management platform. The application foundation, PostgreSQL/Prisma infrastructure and hybrid GraphQL/REST API infrastructure are implemented. Redis connectivity and readiness are implemented in Task 1.4.2. BullMQ queue/worker infrastructure is implemented in Task 1.4.3 without any production queue or worker registration. Business models and authentication are not implemented.
+A standalone NestJS modular monolith for HanoLink's planned multi-tenant delivery management platform. The application foundation, PostgreSQL/Prisma infrastructure and hybrid GraphQL/REST API infrastructure are implemented. Redis connectivity/readiness and BullMQ queue/worker infrastructure are implemented without production queue or worker registration. Task 2.2 adds User, Tenant, Membership and minimum AuditEvent persistence only. Authentication, authorization, onboarding workflows and business operations are not implemented. See [identity architecture](docs/architecture/IDENTITY.md).
 
 ## Requirements and setup
 
@@ -62,12 +62,12 @@ The new project creates a separate empty volume; the original data remains intac
 
 ## Prisma and migration workflow
 
-`npm ci` generates the ignored ESM Prisma Client via postinstall. `prisma.config.ts` loads .env for CLI commands; database URLs live in configuration, not the schema. Runtime uses PrismaPg and Nest's ConfigService. The model-free schema generates successfully; its diff from an empty database contains no SQL, so no artificial initial migration/table or seed was added. The migrations directory contains the PostgreSQL provider lock. The first approved model change will create the first meaningful migration.
+`npm ci` generates the ignored ESM Prisma Client via postinstall. `prisma.config.ts` loads .env for CLI commands; database URLs live in configuration, not the schema. Runtime uses PrismaPg and Nest's ConfigService. The first meaningful migration is `20261126190000_core_identity`, with four approved identity tables and reviewed SQL-only invariants. There is no seed. Verify target, existing schema/data and migration history before deployment; test on guarded hanoflow_test first. See [migration and inspection instructions](docs/architecture/IDENTITY.md#migration-and-inspection). No migration runs at application startup.
 
 ```sh
 npm run db:validate
 npm run db:generate
-# After an approved schema change, on a disposable development database:
+# Only with separately approved disposable/shadow database access:
 npm run db:migrate:dev -- --name describe_change
 npm run db:generate
 # In a controlled deployment/release step:
@@ -84,10 +84,11 @@ Review migration SQL and commit it with schema changes. Do not use db push or ac
 
 ```sh
 docker compose exec postgres sh -c 'createdb -U "$POSTGRES_USER" hanoflow_test'
+# Deploy reviewed migrations to the verified test target first (workflow below).
 npm run test:db
 ```
 
-Set TEST_DATABASE_URL in .env to match that database and the configured credentials/port. Development uses hanoflow; tests use hanoflow_test in the same dedicated container. Do not repeat createdb if the database already exists. Tests issue read-only SELECT queries and verify current_database(); migrations are a separate workflow. CI uses its own ephemeral PostgreSQL 18 service on host port 5434, creates the separate test database and uses the same safeguards. See [database architecture](docs/architecture/DATABASE.md) for isolation, transactions and operational details.
+Set TEST_DATABASE_URL in .env to match that database and the configured credentials/port. Development uses hanoflow; tests use hanoflow_test in the same dedicated container. Do not repeat createdb if the database already exists. Deploy reviewed migrations to the guarded test target before test:db, then restore the original development environment so the guard sees distinct targets. Tests verify current_database(), real schema constraints and migration checksum; they clean up only exact IDs created by the current run, without truncation/reset. CI creates and migrates its separate test database before running tests. See [database architecture](docs/architecture/DATABASE.md) and [testing instructions](docs/development/TESTING.md).
 
 ## GraphQL and REST
 
@@ -137,7 +138,7 @@ See [architecture](docs/architecture/OVERVIEW.md), [API architecture](docs/archi
 
 CI runs formatting, lint, type checks, tests and build on pull requests using Node 24 and npm ci, plus a separate real PostgreSQL job. Prisma's Effect dependency is overridden to the compatible 3.22.1 patch to address GHSA-7589-6fvf-x4pw. Existing moderate Jest tooling findings remain; see progress for actual verification results and environment limitations.
 
-Task 1.2.1 live verification on 2026-11-25 passed: 39 offline tests, four real database tests, all static/build gates, and HTTP healthy/outage/recovery checks against PostgreSQL 18.7 on the dedicated port. Liveness stayed 200 during the database outage; readiness changed 200 to 503 and recovered to 200 without an application restart. The container was left healthy. GitHub Actions was not run. With no models or migration history, db:migrate:status currently exits 1 (unmanaged database/no migrations); the empty schema diff is intentional, not a reason to create artificial SQL.
+Historical Task 1.2.1 verification on 2026-11-25 passed: 39 offline tests, four real database tests, all static/build gates, and HTTP healthy/outage/recovery checks against PostgreSQL 18.7. Liveness stayed 200; readiness changed 200 to 503 and recovered without application restart. At that stage the model-free database intentionally had no migration history. Task 2.2 supersedes that schema state with the reviewed identity migration; see PROGRESS.md for current results. GitHub Actions was not run by this agent.
 
 ## Redis local configuration (Task 1.4.2)
 
@@ -216,4 +217,4 @@ testing exposed cached first-connect rejection; the corrected owned-client hando
 now recovers on the same app. Build, static gates, Prisma validation and compiled
 REST/GraphQL smoke checks passed. Phase 1 is functionally complete for local
 development only. GitHub Actions was not run; deployment remains blocked and
-Phase 2 has not started.
+Phase 2 identity persistence is implemented in Task 2.2; see [identity architecture](docs/architecture/IDENTITY.md) and PROGRESS.md for current acceptance. Task 2.3 requires separate approval.

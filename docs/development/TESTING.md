@@ -1,4 +1,4 @@
-# Foundation testing
+# Backend testing
 
 Use Node 24 LTS and the locked npm dependencies. On this workstation activate
 the portable runtime through process-local PATH as documented in README.
@@ -18,6 +18,27 @@ production AppModule plus test-only queue/processor fixtures. Its PostgreSQL
 provider is substituted only so the Redis CI job does not require a database.
 Compiled production smoke verification separately checks both real development
 dependencies and existing REST/GraphQL health.
+
+## Guarded PostgreSQL identity tests
+
+Both DATABASE_URL (development) and TEST_DATABASE_URL (hanoflow_test) are required.
+The existing pre-connection target guard remains unchanged: matching local user,
+loopback, configured dedicated port, exact distinct test database. Deploy reviewed
+migrations to the verified test target first; restore the development environment
+before `npm run test:db`. See [safe deployment workflow](../architecture/IDENTITY.md#migration-and-inspection).
+
+The original four connectivity/readiness tests remain. Task 2.2 adds 42 real
+identity tests covering UUID defaults, Unicode canonical email, uniqueness,
+lifecycle enums, memberships/composite keys/FKs, removal/reactivation support,
+audit scope/correlation/metadata/history, migration checksum, tables, checks,
+indexes and explicit collation. Only per-test allocated UUIDs are cleaned up,
+in FK-safe order; one direct SQL fixture uses transaction rollback. Never truncate
+tables, reset, seed unrelated records or run this suite on development. Apply
+migrations separately; tests never repair a missing schema silently.
+
+No new offline test duplicates database constraints. The existing offline layer
+continues to verify guards, configuration, dependency-free health and lifecycle.
+CI deploys migrations specifically to its ephemeral test URL before test:db.
 
 ## Dedicated Redis test environment
 
