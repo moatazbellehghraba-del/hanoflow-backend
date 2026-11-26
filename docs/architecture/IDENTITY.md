@@ -1,9 +1,9 @@
-# Core identity database foundation — Tasks 2.2 and 2.3
+# Core identity database foundation — Tasks 2.2 through 2.4
 
 ## Boundary and approved direction
 
 User, Tenant, Membership, AuditEvent and PasswordCredential persistence is implemented. There
-are no identity endpoints, sessions, roles, owner assignments,
+are no identity endpoints, public session workflows, roles, owner assignments,
 invitations, onboarding services or RLS policies. All access remains through the
 existing singleton PrismaService exported by the non-global DatabaseModule.
 
@@ -11,6 +11,12 @@ Task 2.3 adds internal Argon2id password services through non-global IdentityMod
 with no credential workflows. See [password architecture](PASSWORDS.md) for the
 credential schema, policy, dependency assessment, capacity, rehash strategy and
 actual benchmark. The original core identity migration remains unchanged.
+
+Task 2.4 adds Session, AccessToken and RefreshToken persistence with internal
+identity-only session operations, strict rotation/replay handling and safe audit
+writing. See [session architecture](SESSIONS.md) for schemas, eligibility, lifetime
+policy, database locks and future trusted Auth integration. No tenant authorization
+is granted by these contexts. Both prior migrations remain unchanged.
 
 Approved direction: global human identities with multiple company memberships;
 globally unique email login initially and phone authentication later; both
@@ -24,6 +30,7 @@ preservation. These are future requirements, not implemented capabilities.
 erDiagram
     User ||--o{ Membership : belongs_through
     User ||--o| PasswordCredential : has
+    User ||--o{ Session : owns
     Tenant ||--o{ Membership : contains
     User o|--o{ AuditEvent : actor
     Tenant o|--o{ AuditEvent : context
@@ -193,5 +200,6 @@ See [testing instructions](../development/TESTING.md) and
 [actual verification](../development/PROGRESS.md). Authentication workflows,
 opaque sessions, roles/ownership, both onboarding workflows and staged RLS need
 separate authorization. Task 2.3 completes only password primitives/persistence;
-Task 2.4 has not started. Existing production deployment
+Task 2.4 implements only internal session/token foundations; Task 2.5 has not
+started. Existing production deployment
 restrictions remain unchanged.

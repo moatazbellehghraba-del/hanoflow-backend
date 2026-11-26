@@ -4,12 +4,12 @@ Updated: 2026-11-26 (Africa/Lagos).
 
 ## Current phase
 
-Phase 2: core identity and password credential foundation implemented through Task 2.3.
+Phase 2: identity, password and internal session foundations implemented through Task 2.4.
 Not production-ready; existing deployment restrictions remain in force.
 
 ## Current task
 
-Task 2.3 complete: PasswordCredential, reviewed second migration, Argon2id/internal policy and bounded resource management, benchmark and documentation. All 258 tests passed across 20 suites. Production deployment remains blocked. Task 2.4 has not started; await explicit approval.
+Task 2.4 complete: PostgreSQL sessions, digest-only opaque tokens, strict transactional refresh/replay revocation, narrow audit integration and reviewed third migration. All 324 tests passed across 24 suites. Production deployment remains blocked. Task 2.5 has not started; await explicit approval.
 
 ## Completed tasks
 
@@ -25,7 +25,7 @@ Task 2.3 complete: PasswordCredential, reviewed second migration, Argon2id/inter
 
 ## Pending tasks
 
-- Owner review of Task 2.3, then separately scope and authorize Task 2.4. Compromised/common-password screening, authentication workflows, trusted tenant context, RBAC/ownership, both onboarding workflows and RLS remain future work.
+- Owner review of Task 2.4, then separately scope and authorize Task 2.5. Public authentication flows/transports/guards, compromised-password screening, trusted tenant context, RBAC/ownership, onboarding and RLS remain future work.
 - Resolve the existing GraphQL Tools production advisory through a reviewed compatible dependency change before deployment; retain all existing exposure restrictions.
 
 ## Technical decisions
@@ -891,3 +891,175 @@ removed, generated/build files remain ignored, and the staging area is empty.
   ownership, onboarding, tenant context/RLS and all Task2.4 scope remain future.
 - No staging, commits, pushes, merges or deployments. Recommend owner review of
   Task2.3 before separately scoping/authorizing Task2.4; Task2.4 has not started.
+
+## Task 2.4 — Sessions and opaque token rotation (2026-11-26)
+
+### Review, authorization and decisions
+
+- Owner confirmed Task2.3 merge and authorized only Task2.4. Verified clean initial
+  feature/session-management branch, HEAD8e9b76f (merged password credentials),
+  repository root, Node24.22.3/npm11.19.1 portable executable and merged baseline.
+  Read AGENTS, README, progress, identity/password/database/overview, configuration,
+  Prisma service, schema/migrations, integration guards/tests, logs/errors, packages
+  and CI. Existing production restrictions remain; no Task2.5 implementation.
+- Both guarded actual databases verified as hanoflow/hanoflow_test, PostgreSQL18.7,
+  public schema. Prior two checksums/status matched, no schema diff or conflicts.
+  Existing five tables each had zero rows; count/fingerprints recorded without
+  printing contents. Final fingerprints are unchanged and all new fixture rows gone.
+  Additional catalog review found no unexpected public routines/domains.
+- Original PG/development Redis/isolated test Redis healthy on loopback5434/6380/ 6381. Dependency tree passed. Manifest, lock and override unchanged byte-for-byte;
+  no install, version/permission/toolchain/role/credential/privilege changes.
+- Selected safe policy defaults beyond explicit owner detail: only IDENTITY scope,
+  defer tenant/membership context and platform elevation; require ACTIVE + verified
+  email; only refresh extends idle; older access remains valid until expiry or
+  current user/session/context invalidation; point-in-time revoke-all serialized
+  with creation. No approved lifetime default was changed.
+
+### Schema and migration
+
+- Session: UUIDv4/user FK, IDENTITY scope, BROWSER/MOBILE client, positive context
+  version, creation/activity/idle/absolute times, paired revocation time/reason.
+- AccessToken: UUIDv4/session FK, unique32-byte SHA256 digest, positive context
+  version, creation/expiration. RefreshToken: UUIDv4/session FK, unique32-byte
+  digest, creation/expiration/consumption, unique predecessor and same-session
+  composite FK. Ten custom CHECKs cover digests/time/context/revocation/self-lineage;
+  partial unique index limits each session to one unconsumed refresh. Four restricted
+  FKs and fourteen new indexes including primary keys. All timestamps timestamptz3.
+- Reviewed third migration 20261126210000_sessions_and_tokens generated from prior
+  committed Prisma schema to new schema without datasource/shadow. Only three new
+  tables, three enums and their approved constraints/indexes, wrapped BEGIN/COMMIT.
+  No reset, db push, extension, privilege or destructive data operations.
+- Guarded test deployment/status/diff succeeded first;36 new session cases and
+  all92 DB tests passed before development migration. Rechecked development target,
+  existing data/history, applied identical SQL; both targets up to date/no diff.
+  Added three final real transaction/log checks afterward; final95 DB tests pass.
+- Migration SHA256 values:
+  - Core identity unchanged:2c83680416255de3c430b30238525fc9b02b4dfedf96006e245cec3ccfb93bda.
+  - Credential unchanged:e431694c00462c397cb225ea0f585b67e1ff751e0c551ad6f6facc40b32e4c9c.
+  - Sessions:e28edb10b7357897b13b13fff79af431cc3fb899d28a7d39551c89b54968a233.
+- Generated Prisma7.10.1 client remains ignored. Initial strict typecheck caught
+  TS6 Buffer<ArrayBufferLike> versus Prisma Bytes Uint8Array<ArrayBuffer>; fixed
+  with explicitly allocated Uint8Array copies, no unchecked casts or dependency
+  changes. Intermittent sandbox launcher failure required read-only/network-capable
+  execution; no system configuration change.
+
+### Internal architecture and guarantees
+
+- Non-global SessionsModule imports DatabaseModule/AuditModule, exports only
+  SessionsService; AppModule imports it. Private TokenSecrets/persistence helpers;
+  no Identity/Sessions cycle or feature-created Prisma client. AuditModule owns
+  a small typed transactional SessionAuditWriter, no generic administration API.
+- Tokens:32 secure random bytes, canonical Base64URL43 + hfa_/hfr_ purpose prefix,
+  SHA256 binary32 digest only. Malformed/noncanonical/wrong-purpose tokens rejected
+  before DB work. Raw secrets returned only in committed internal issuance results;
+  no token/digest logs, audit metadata, snapshots or public DTOs.
+- Browser10min access/30min idle/12h absolute; mobile10min/7d/30d. Fixed validated
+  profiles, no caller/environment durations. Refresh clips access/refresh/idle to
+  unchanged absolute lifetime. Access validation has no activity/audit writes.
+  Expired means database now >= boundary; database clock sampled after locks and
+  truncated to milliseconds, avoiding stale transaction-start/client time.
+- Establishment accepts only an internal trusted AuthenticatedIdentity contract,
+  not proof derived from a request ID. Current user rechecked under lock. Session,
+  digests and safe audit are atomic. Future Auth must actually authenticate and
+  authorize callers before constructing this contract; no login orchestration.
+- Access validation returns only user/session/IDENTITY/contextVersion after current
+  eligibility, revocation, token/idle/absolute expiry and version checks. No tenant
+  authorization/Redis authority or cached user-state claim.
+- Lock order User -> Session -> RefreshToken; lifecycle writes FOR UPDATE,
+  validation FOR SHARE, revoke-all Session IDs sorted. Establishment uses same User
+  lock, so creation before revoke-all is included, creation afterward survives.
+  All future writers must preserve this order. Same-user lifecycle writes serialize
+  conservatively; independent users progress separately. No local mutex/retry loop.
+- Interactive READ COMMITTED maxWait1s/timeout5s, SET LOCAL lock_timeout750ms;
+  existing pool5/connection2s/statement2s/query3s unchanged. Native password work,
+  external I/O or user waits are not inside production session transactions.
+- Refresh rechecks under lock, consumes once, creates one successor/access token,
+  updates activity and audits atomically. Known consumed token on relevant session
+  commits revocation+DENIED audit before returning replay, never throws inside the
+  transaction to roll security state back. Failure/ambiguous commit yields only
+  sanitized operational error, no raw result and no automatic retry.
+- Strict duplicate refresh/lost-response retry revokes the winner's credentials;
+  client single-flight refresh and safe reauthentication are future requirements.
+  Expired/already revoked session is invalid without repeated audit; expired old
+  consumed token still causes replay revocation if session remains relevant.
+  Unknown random tokens cannot revoke unrelated sessions or create audit floods.
+- Single/all-user revocation is durable/idempotent and preserves other users and
+  sessions. No claim to cancel already authorized/executing work. Future sensitive
+  operations must revalidate authorization transactionally with business writes.
+- Audit events:established/rotated/revoked/revoked_all/refresh_replay. Only fixed
+  client/count metadata, safe target/correlation UUIDs, no secrets. Replay uses a
+  null system actor because a consumed token does not authenticate its presenter;
+  authenticated operations reference the user actor. This attribution was corrected
+  during final review and full offline/database regressions rerun afterward.
+
+### Actual verification
+
+| Command/check                                     | Result                                                   | Reported test duration    |
+| ------------------------------------------------- | -------------------------------------------------------- | ------------------------- |
+| Focused token/policy tests                        | 2 suites,23/23 passed                                    | 1.133s                    |
+| npm test, final complete offline layer            | 19 suites,218/218 passed                                 | 14.491s                   |
+| npm run test:db, final full real PostgreSQL       | 4 suites,95/95 passed                                    | 10.866s                   |
+| npm run test:redis                                | 1 suite,11/11 passed, normal exit with detectOpenHandles | 66.352s                   |
+| Complete total                                    | 24 suites,324/324; original258 retained,66 added         | Per-layer durations above |
+| Prisma format/validate/generate                   | Passed; client7.10.1                                     | —                         |
+| TypeScript/ESLint/production build                | Passed                                                   | —                         |
+| Dependency tree                                   | Passed; package/lock/override unchanged                  | —                         |
+| Test/development migration status and schema diff | Up to date/empty; prior checksums preserved              | —                         |
+| Compiled production startup/shutdown              | Normal init/listen on ephemeral loopback/app.close       | —                         |
+| Compiled REST liveness/readiness                  | 200/200 with real PG/development Redis                   | —                         |
+| Compiled GraphQL health                           | 200,data.health.status ok                                | —                         |
+
+27 new offline tests cover token entropy/format/digests/purpose, policy boundaries
+and safe transaction errors.39 new real tests cover establishment/current state,
+expiry/context, digest-only persistence, SQL constraints, lineage, exact successor,
+rollback, safe logs/audit, actual multi-pool concurrency, durable replay and
+revocation/revoke-all races. Existing catalog tests extend all prior assertions
+for the three new tables/indexes/checks/FKs/migration, preserving original coverage.
+
+Independent real Nest application pools verified distinct PostgreSQL backend PIDs.
+Simultaneous refreshes gave exactly one issued/one replay, one successor, durable
+revocation visible from the other connection and invalid winner credentials.
+Refresh-vs-revoke left tokens invalid; concurrent revoke wrote one event; separate
+users rotated successfully; revoke-all/creation matched documented lock ordering.
+Test-only gated audit proved credentials were withheld until real commit and
+uncommitted rotation invisible elsewhere. A held User lock proved750ms contention
+failure stayed bounded and left refresh consumption unchanged.
+
+An expanded run initially passed94/95 because a synthetic duplicate fixture used
+host consumedAt before PostgreSQL's default createdAt, hitting the timestamp CHECK
+instead of uniqueness. Fixed fixture to use the same database timestamp for both,
+then full95/95 passed (11.918s), followed by the final audit-attribution regression
+run above. Production state transitions already used consistent database time.
+No raw credential diagnostics were emitted. Fixture cleanup uses only owned user/
+session UUIDs and exact correlation IDs, including null-actor replay audits.
+
+Redis regression retry gaps1033/2025ms, active shutdown29024ms; only verified test
+Redis restarted and restored healthy. Development PG start still
+2026-11-26T18:03:22.348485469Z and development Redis still
+2026-11-26T18:03:22.110054088Z, original loopback5434/6380 bindings and volumes intact.
+No development test jobs or unrelated service changes. Test Redis remains healthy
+on6381, preserving marker/container/volume identity.
+
+Final `npm run format:check` and `git diff --check` passed. Temporary helpers are
+removed, generated/build artifacts remain ignored, and the staging area is empty.
+
+### Files, limitations and handoff
+
+- Created modules/sessions policy, token utility, SessionsService/SessionsModule and
+  three offline specs; modules/audit AuditModule/SessionAuditWriter;
+  test/sessions.database-spec.ts; third migration; architecture/SESSIONS.md.
+- Modified schema, AppModule, identity catalog test expectations, README, AGENTS,
+  IDENTITY/PASSWORDS/DATABASE/OVERVIEW architecture, TESTING and this progress file.
+  Temporary migration/previous-schema/review/smoke helpers removed before handoff.
+  Generated/build output ignored. No dependency/script/override/CI/Compose/guard
+  change; GitHub Actions was not executed by this agent.
+- SESSIONS.md documents fields/ER diagram, SQL-only versus service-enforced rules,
+  lock/time/resource semantics, trusted Auth boundary, audit/replay/lost response,
+  manual verification commands and production limits. No public manual token flow
+  exists; use synthetic tests, never dump bearer tokens/digests through tools.
+- Remaining work: public authentication/trusted caller construction, reviewed
+  transport/guards/cookies/CSRF/client single-flight, abuse controls, compromised
+  password screening, retention/cleanup, monitoring/capacity, tenant authorization/
+  RLS and existing production advisory. No database audit immutability claim.
+- No staging, commits, pushes, merges or deployments. Owner review of Task2.4 and
+  explicit separate scope/approval for Task2.5 are required; Task2.5 not started.

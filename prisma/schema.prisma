@@ -53,6 +53,74 @@ model User {
   memberships        Membership[]
   auditEvents        AuditEvent[]
   passwordCredential PasswordCredential?
+  sessions           Session[]
+}
+
+enum SessionScope {
+  IDENTITY
+}
+
+enum SessionClient {
+  BROWSER
+  MOBILE
+}
+
+enum SessionRevocationReason {
+  EXPLICIT
+  REVOKE_ALL
+  REFRESH_REPLAY
+}
+
+// Tenant context/elevation intentionally deferred; contextVersion permits future invalidation.
+model Session {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String                   @db.Uuid
+  scope             SessionScope             @default(IDENTITY)
+  client            SessionClient
+  contextVersion    Int                      @default(1)
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
+  lastActivityAt    DateTime                 @db.Timestamptz(3)
+  idleExpiresAt     DateTime                 @db.Timestamptz(3)
+  absoluteExpiresAt DateTime                 @db.Timestamptz(3)
+  revokedAt         DateTime?                @db.Timestamptz(3)
+  revocationReason  SessionRevocationReason?
+  user              User                     @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  accessTokens      AccessToken[]
+  refreshTokens     RefreshToken[]
+
+  @@index([userId, revokedAt, id])
+  @@index([idleExpiresAt])
+  @@index([absoluteExpiresAt])
+}
+
+model AccessToken {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId      String   @db.Uuid
+  digest         Bytes    @unique @db.ByteA
+  contextVersion Int
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt      DateTime @db.Timestamptz(3)
+  session        Session  @relation(fields: [sessionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([sessionId])
+  @@index([expiresAt])
+}
+
+// SQL adds one-unconsumed-token partial unique index and lineage/timestamp CHECKs.
+model RefreshToken {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId     String         @db.Uuid
+  digest        Bytes          @unique @db.ByteA
+  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
+  expiresAt     DateTime       @db.Timestamptz(3)
+  consumedAt    DateTime?      @db.Timestamptz(3)
+  predecessorId String?        @unique @db.Uuid
+  session       Session        @relation(fields: [sessionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  predecessor   RefreshToken?  @relation("Rotation", fields: [sessionId, predecessorId], references: [sessionId, id], onDelete: Restrict, onUpdate: Restrict)
+  successor     RefreshToken[] @relation("Rotation")
+
+  @@unique([sessionId, id])
+  @@index([expiresAt])
 }
 
 // Shared primary key enforces zero-or-one credential per global user.

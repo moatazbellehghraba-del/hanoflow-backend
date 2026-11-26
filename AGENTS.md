@@ -62,6 +62,22 @@ No npm script permission was granted; native prebuilt loading worked under exist
 protections. Stop before new build permissions/toolchains. See PASSWORDS.md for
 Unicode, legacy verification, rehash compare-and-swap and benchmark limitations.
 
+## Sessions foundation
+
+Task 2.4 adds non-global SessionsModule with only internal SessionsService exported;
+AuditModule owns its narrow transactional writer. No Identity/Sessions cycle,
+public authentication endpoints, guards, transports or tenant/elevated scope.
+Require ACTIVE user + verified email from current database state. PostgreSQL owns
+all session/token state; never use Redis as authority. Tokens are 32 random bytes,
+purpose-prefixed canonical Base64URL, SHA256 digests only in storage. Never log,
+export or audit raw tokens/digests. Only committed issuance results carry secrets.
+Preserve User -> Session -> RefreshToken lock order and shared validation locks,
+750ms lock timeout, bounded Prisma transactions, strict replay commit-before-return,
+one-unconsumed partial index, lineage checks and both prior migration checksums.
+Only refresh extends idle; absolute expiry stays fixed. Revoke-all is serialized
+with creation on User. No automatic retries on ambiguous commits or retention jobs.
+See SESSIONS.md for policy, trusted callers, concurrency guarantees and limitations.
+
 ## Redis infrastructure
 
 Use non-global RedisModule and exported RedisService for the dedicated readiness

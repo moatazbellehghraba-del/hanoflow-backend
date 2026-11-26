@@ -1,6 +1,6 @@
 # Backend architecture
 
-## Existing implementation - Tasks 1.1 through 2.3
+## Existing implementation - Tasks 1.1 through 2.4
 
 A single NestJS 12 process with Express transport and strict TypeScript/ESM. AppModule imports global validated ConfigModule, HealthModule and non-global QueuesModule, and registers a global HTTP exception filter. HealthModule owns GET /api/v1/health, returning only { "status": "ok" }, and GET /api/v1/health/ready, which queries PostgreSQL and Redis and returns 503 on either dependency failure. REST and GraphQL liveness remain dependency-free.
 
@@ -16,6 +16,11 @@ Task 2.3 adds PasswordCredential persistence and the non-global IdentityModule,
 explicitly imported by AppModule. It exports internal password policy/hashing
 services with private native engine/capacity providers. No public model, endpoint,
 authentication workflow or extra Prisma client is created. See [password architecture](PASSWORDS.md).
+
+Task 2.4 adds non-global SessionsModule/AuditModule and PostgreSQL session/access/
+refresh records. Only internal identity-only establishment, validation, strict
+rotation/replay revocation and narrow audit writing exist. No public authentication
+transport or authorization is provided. See [session architecture](SESSIONS.md).
 
 ## Planned architecture — not implemented
 
@@ -56,4 +61,5 @@ Phase 1 local acceptance passed in Task 1.4.4: 170 tests plus required quality a
 compiled health checks. This is functional local-development closure only, not
 production readiness. The existing advisory/exposure restrictions remain; Phase 2
 was separately approved through Task 2.3 identity/password persistence and internal
-password primitives. Task 2.4 has not started.
+password primitives. Task 2.4 separately adds internal sessions and opaque-token
+rotation; Task 2.5 has not started.
