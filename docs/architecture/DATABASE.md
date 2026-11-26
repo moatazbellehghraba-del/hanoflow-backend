@@ -42,6 +42,13 @@ checks. The core migration and existing records remain unchanged. See
 [password persistence](PASSWORDS.md) for field definitions, timestamp separation,
 conditional rehash updates and sensitive-data boundaries.
 
+Task 2.4 adds the third reviewed migration, 20261126210000_sessions_and_tokens,
+with Session, AccessToken and RefreshToken, SQL-only checks/partial uniqueness and
+same-session lineage. Existing Prisma pool/statement settings are unchanged.
+Interactive operations use maxWait1s/timeout5s and transaction-local lock_timeout
+750ms. See [session transactions](SESSIONS.md) for lock order, durable replay audit,
+authoritative time and tested multi-instance concurrency.
+
 ## Tests and actual verification
 
 Default unit/HTTP tests use a fake URL and an overridden Prisma provider; they verify lifecycle, DI, safe failure behavior and readiness responses without PostgreSQL. The separate test:db suites use real PrismaService, explicitly required TEST_DATABASE_URL, connectivity/readiness and identity constraint tests. Identity tests write only uniquely identified owned fixtures and delete only those exact IDs; direct SQL fixture insertion is rolled back. No truncate/reset or arbitrary data cleanup occurs. Missing configuration/connectivity fails rather than silently skipping. CI migrates its ephemeral test database before the suites. See PROGRESS.md for executed local checks; configured CI is not evidence of a completed GitHub run.

@@ -242,4 +242,6 @@ See PROGRESS.md for exact executed results and preserved infrastructure.
 No CI change was necessary: existing npm ci, Node24 and test-database migration
 steps cover this dependency/schema. Actual Linux native loading awaits a GitHub
 run. Existing production restrictions and compromised-password screening remain
-unresolved. Task 2.4 requires separate scope and explicit approval.
+unresolved. Task 2.4 now adds the separate internal session foundation described in
+SESSIONS.md; public authentication workflows remain future. Task 2.5 requires
+separate scope and explicit approval.

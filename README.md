@@ -7,6 +7,11 @@ module with Argon2id hashing/verification, structural password policy, upgrade
 detection and bounded capacity. There are no authentication endpoints or workflows.
 See [password architecture and benchmark](docs/architecture/PASSWORDS.md).
 
+Task 2.4 adds internal PostgreSQL-backed identity sessions, digest-only opaque
+access/refresh tokens, transactional rotation/replay revocation and safe audit
+events. There are no public authentication transports, guards or tenant session
+contexts. See [session architecture](docs/architecture/SESSIONS.md).
+
 ## Requirements and setup
 
 Run commands from the dedicated `hanoflow-backend` repository directory. Use Node 24 LTS (24.15+), npm 10.9+, Git and Docker Compose v2 for local PostgreSQL. The npm lockfile records exact installed dependencies. System Node 22.17 does not meet this project's engine requirement.
@@ -223,4 +228,4 @@ testing exposed cached first-connect rejection; the corrected owned-client hando
 now recovers on the same app. Build, static gates, Prisma validation and compiled
 REST/GraphQL smoke checks passed. Phase 1 is functionally complete for local
 development only. GitHub Actions was not run; deployment remains blocked and
-Phase 2 identity persistence and the internal password credential foundation are implemented through Task 2.3; see [identity architecture](docs/architecture/IDENTITY.md), [password architecture](docs/architecture/PASSWORDS.md) and PROGRESS.md. Task 2.4 requires separate approval. Compromised-password screening remains required before a complete production password policy can be claimed.
+Phase 2 identity/password persistence and internal session/token operations are implemented through Task 2.4; see [identity architecture](docs/architecture/IDENTITY.md), [password architecture](docs/architecture/PASSWORDS.md), [session architecture](docs/architecture/SESSIONS.md) and PROGRESS.md. Task 2.5 requires separate approval. Compromised-password screening remains required before a complete production password policy can be claimed.

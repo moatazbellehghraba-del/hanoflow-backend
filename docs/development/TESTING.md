@@ -57,6 +57,22 @@ synthetic benchmark with aggregate output only. See PASSWORDS.md and PROGRESS.md
 for actual environment, counts, durations and limits; benchmarking is not CI load
 testing or production sizing. No CI job changes were needed for Task 2.3.
 
+## Session foundation tests
+
+Task 2.4 adds 27 offline token/policy/failure-boundary tests and 39 real PostgreSQL
+session tests. The real suite uses two independently initialized Nest application
+pools and verifies distinct backend connections. It checks atomic establishment,
+current eligibility/expiry/context, strict rotation, committed replay revocation,
+revocation races, revoke-all versus creation, safe audit/logs and SQL constraints.
+Real test-only transaction gates prove no raw result escapes before commit; a held
+User row proves lock waits fail within budget without consuming the refresh token.
+All fixtures use run-owned UUIDs/correlations; cleanup removes only those records,
+clearing owned lineage before child-first deletion. No shared table reset/truncate.
+
+Focused command: `npm run test:db -- --testPathPatterns=sessions.database-spec`.
+See SESSIONS.md for policy/guarantees and PROGRESS.md for exact acceptance results.
+Default tests remain independent of PostgreSQL/Redis; no CI job change is needed.
+
 ## Dedicated Redis test environment
 
 Run from the backend repository:

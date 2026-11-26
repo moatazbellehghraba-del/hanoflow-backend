@@ -7,6 +7,7 @@ import { HealthModule } from './modules/health/health.module.js';
 import { ApiGraphqlModule } from './infrastructure/graphql/api-graphql.module.js';
 import { QueuesModule } from './infrastructure/queues/queues.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
+import { SessionsModule } from './modules/sessions/sessions.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { IdentityModule } from './modules/identity/identity.module.js';
     QueuesModule,
     ApiGraphqlModule,
     IdentityModule,
+    SessionsModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
 })

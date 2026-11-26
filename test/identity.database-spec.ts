@@ -430,7 +430,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     >`
       SELECT migration_name, checksum, finished_at, rolled_back_at FROM "_prisma_migrations" ORDER BY migration_name
     `;
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(3);
     expect(rows[0]).toMatchObject({
       migration_name: migrationName,
       checksum: createHash('sha256')
@@ -453,6 +453,18 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       rolled_back_at: null,
     });
     expect(rows[1]?.finished_at).toBeInstanceOf(Date);
+    expect(rows[2]).toMatchObject({
+      migration_name: '20261126210000_sessions_and_tokens',
+      checksum: createHash('sha256')
+        .update(
+          readFileSync(
+            'prisma/migrations/20261126210000_sessions_and_tokens/migration.sql',
+          ),
+        )
+        .digest('hex'),
+      rolled_back_at: null,
+    });
+    expect(rows[2]?.finished_at).toBeInstanceOf(Date);
   });
 
   it('contains exactly the approved tables, checks, indexes and restricted foreign keys', async () => {
@@ -460,9 +472,12 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename
     `;
     expect(tables.map((row) => row.tablename)).toEqual([
+      'AccessToken',
       'AuditEvent',
       'Membership',
       'PasswordCredential',
+      'RefreshToken',
+      'Session',
       'Tenant',
       'User',
       '_prisma_migrations',
@@ -474,12 +489,22 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     `;
     expect(checks).toEqual(
       [
+        'AccessToken_context_check',
+        'AccessToken_digest_check',
+        'AccessToken_time_check',
         'AuditEvent_identifiers_check',
         'AuditEvent_metadata_check',
         'AuditEvent_scope_check',
         'Membership_removal_chronology_check',
         'Membership_removedAt_check',
         'PasswordCredential_hash_check',
+        'RefreshToken_consumption_check',
+        'RefreshToken_digest_check',
+        'RefreshToken_lineage_check',
+        'RefreshToken_time_check',
+        'Session_context_check',
+        'Session_revocation_check',
+        'Session_time_check',
         'Tenant_name_check',
         'Tenant_slug_check',
         'User_canonicalEmail_check',
@@ -492,17 +517,25 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     `;
     expect(foreignKeys).toEqual(
       [
+        'AccessToken_sessionId_fkey',
         'AuditEvent_actorUserId_fkey',
         'AuditEvent_tenantId_fkey',
         'Membership_tenantId_fkey',
         'Membership_userId_fkey',
         'PasswordCredential_userId_fkey',
+        'RefreshToken_sessionId_fkey',
+        'RefreshToken_sessionId_predecessorId_fkey',
+        'Session_userId_fkey',
       ].map((conname) => ({ conname, confdeltype: 'r', confupdtype: 'r' })),
     );
     const indexes = await prisma.$queryRaw<Array<{ indexname: string }>>`
       SELECT indexname FROM pg_indexes WHERE schemaname='public' AND tablename <> '_prisma_migrations' ORDER BY indexname
     `;
     expect(indexes.map((row) => row.indexname)).toEqual([
+      'AccessToken_digest_key',
+      'AccessToken_expiresAt_idx',
+      'AccessToken_pkey',
+      'AccessToken_sessionId_idx',
       'AuditEvent_actorUserId_createdAt_id_idx',
       'AuditEvent_correlationId_idx',
       'AuditEvent_pkey',
@@ -513,6 +546,16 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       'Membership_tenantId_userId_key',
       'Membership_userId_status_idx',
       'PasswordCredential_pkey',
+      'RefreshToken_digest_key',
+      'RefreshToken_expiresAt_idx',
+      'RefreshToken_one_unconsumed_per_session',
+      'RefreshToken_pkey',
+      'RefreshToken_predecessorId_key',
+      'RefreshToken_sessionId_id_key',
+      'Session_absoluteExpiresAt_idx',
+      'Session_idleExpiresAt_idx',
+      'Session_pkey',
+      'Session_userId_revokedAt_id_idx',
       'Tenant_pkey',
       'Tenant_slug_key',
       'User_canonicalEmail_key',
