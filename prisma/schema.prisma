@@ -10,4 +10,101 @@ datasource db {
   provider = "postgresql"
 }
 
-// Task 1.2 establishes infrastructure only. No business models yet.
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum TenantStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum AuditScope {
+  PLATFORM
+  TENANT
+}
+
+enum AuditOutcome {
+  SUCCESS
+  FAILURE
+  DENIED
+}
+
+// Reviewed SQL adds email normalization checks and canonicalEmail COLLATE "C".
+model User {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String       @db.VarChar(254)
+  canonicalEmail  String       @unique @db.VarChar(254)
+  status          UserStatus   @default(PENDING)
+  emailVerifiedAt DateTime?    @db.Timestamptz(3)
+  createdAt       DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime     @default(now()) @updatedAt @db.Timestamptz(3)
+  memberships     Membership[]
+  auditEvents     AuditEvent[]
+}
+
+// Reviewed SQL adds nonblank name and normalized slug checks.
+model Tenant {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String       @db.VarChar(200)
+  slug        String       @unique @db.VarChar(100)
+  status      TenantStatus @default(PENDING)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @default(now()) @updatedAt @db.Timestamptz(3)
+  memberships Membership[]
+  auditEvents AuditEvent[]
+}
+
+// joinedAt is the first join; future reactivation reuses this row.
+// Reviewed SQL enforces removedAt/status consistency and removal chronology.
+model Membership {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String           @db.Uuid
+  tenantId  String           @db.Uuid
+  status    MembershipStatus @default(ACTIVE)
+  joinedAt  DateTime         @default(now()) @db.Timestamptz(3)
+  removedAt DateTime?        @db.Timestamptz(3)
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime         @default(now()) @updatedAt @db.Timestamptz(3)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([tenantId, userId])
+  @@unique([tenantId, id])
+  @@index([userId, status])
+  @@index([tenantId, status, id])
+}
+
+// NULL actor represents a system event, independently of PLATFORM/TENANT scope.
+// SQL checks enforce scope, bounded object metadata and nonblank identifiers.
+// No updatedAt; append-only permissions and metadata allowlists are future work.
+model AuditEvent {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId   String?      @db.Uuid
+  tenantId      String?      @db.Uuid
+  scope         AuditScope
+  action        String       @db.VarChar(100)
+  targetType    String       @db.VarChar(80)
+  targetId      String?      @db.VarChar(128)
+  outcome       AuditOutcome
+  correlationId String       @db.Uuid
+  metadata      Json?        @db.JsonB
+  createdAt     DateTime     @default(now()) @db.Timestamptz(3)
+  actor         User?        @relation(fields: [actorUserId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  tenant        Tenant?      @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([tenantId, createdAt, id])
+  @@index([actorUserId, createdAt, id])
+  @@index([correlationId])
+}

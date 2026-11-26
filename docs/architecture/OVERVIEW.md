@@ -1,12 +1,12 @@
 # Backend architecture
 
-## Existing implementation - Tasks 1.1 through 1.4.4
+## Existing implementation - Tasks 1.1 through 2.2
 
 A single NestJS 12 process with Express transport and strict TypeScript/ESM. AppModule imports global validated ConfigModule, HealthModule and non-global QueuesModule, and registers a global HTTP exception filter. HealthModule owns GET /api/v1/health, returning only { "status": "ok" }, and GET /api/v1/health/ready, which queries PostgreSQL and Redis and returns 503 on either dependency failure. REST and GraphQL liveness remain dependency-free.
 
 Bootstrap applies the /api prefix, URI version 1, global DTO ValidationPipe, JSON ConsoleLogger and graceful shutdown hooks. Shared setup is used in HTTP tests. AppModule, HealthModule and DatabaseModule are the production application modules. HealthModule imports DatabaseModule and the non-global RedisModule; HealthService mediates between the controller and the exported PrismaService.
 
-src/config owns validated environment and bootstrap conventions. src/common/filters owns transport-aware HTTP/GraphQL error normalization; src/common/http owns request correlation and safe structured completion logs. src/infrastructure/database owns the singleton Prisma 7 client, PostgreSQL adapter and connection lifecycle. PostgreSQL 18 local Compose configuration, an empty Prisma schema, generation and migration workflows are present; there are no business tables or initial SQL migration. src/common/interceptors and src/common/pipes remain reserved. There is no authentication, queue, tenant resolution or financial logic. See [database architecture](DATABASE.md) for the implementation, migration decision and planned isolation rules.
+src/config owns validated environment and bootstrap conventions. src/common/filters owns transport-aware HTTP/GraphQL error normalization; src/common/http owns request correlation and safe structured completion logs. src/infrastructure/database owns the singleton Prisma 7 client, PostgreSQL adapter and connection lifecycle. PostgreSQL 18 and the first reviewed migration now provide User, Tenant, Membership and minimum AuditEvent persistence. There are no identity API modules or public model types. src/common/interceptors and src/common/pipes remain reserved. Authentication, authorization, tenant resolution and financial logic remain future work. See [database architecture](DATABASE.md) and [identity architecture](IDENTITY.md).
 
 ApiGraphqlModule owns code-first Apollo configuration, generating a sorted schema in memory and serving only /graphql independently of REST prefix/versioning. HealthResolver and HealthController share HealthService liveness logic. Typed request context carries the request and correlation ID, not identity. GraphQL uses its standard response shape and safe error codes; REST preserves its existing envelope. Development-only tooling/introspection, bounded requests, CSRF checks and disabled batching form an initial security foundation, not a production-security guarantee. See [API architecture](API.md) for policies, deferred authentication/tenant/cost controls and the unresolved transitive production advisory.
 
@@ -50,4 +50,4 @@ See [testing and CI](../development/TESTING.md) and PROGRESS.md for acceptance s
 Phase 1 local acceptance passed in Task 1.4.4: 170 tests plus required quality and
 compiled health checks. This is functional local-development closure only, not
 production readiness. The existing advisory/exposure restrictions remain; Phase 2
-requires separate explicit approval and has not started.
+was separately approved for Task 2.2 identity persistence. Task 2.3 has not started.

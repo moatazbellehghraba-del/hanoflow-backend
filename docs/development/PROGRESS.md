@@ -1,15 +1,15 @@
 # Development progress
 
-Updated: 2026-11-25 (Africa/Lagos).
+Updated: 2026-11-26 (Africa/Lagos).
 
 ## Current phase
 
-Phase 1: backend foundation — functionally complete for local development only.
+Phase 2: core identity persistence implemented through Task 2.2.
 Not production-ready; existing deployment restrictions remain in force.
 
 ## Current task
 
-Task 1.4.4 complete: all required local foundation acceptance checks passed after a narrowly scoped startup-recovery correction. Phase 1 is functionally complete for local development only. Production deployment remains blocked; Phase 2 has not started.
+Task 2.2 complete: four identity models, reviewed initial migration, 42 new real PostgreSQL tests and documentation. All 212 tests passed. Production deployment remains blocked. Task 2.3 has not started; await explicit approval.
 
 ## Completed tasks
 
@@ -25,8 +25,8 @@ Task 1.4.4 complete: all required local foundation acceptance checks passed afte
 
 ## Pending tasks
 
-- Review Task 1.3, resolve the new GraphQL Tools production advisory through a reviewed compatible change before deployment, and approve the next phase before adding domain features.
-- Redis/BullMQ foundation and isolated real acceptance are complete without production queues/workers. Authentication, trusted tenant context and business modules remain unimplemented. Phase 2 requires explicit approval.
+- Owner review of Task 2.2, then separately authorize Task 2.3. Authentication, trusted tenant context, RBAC/ownership, both onboarding workflows and RLS remain future work.
+- Resolve the existing GraphQL Tools production advisory through a reviewed compatible dependency change before deployment; retain all existing exposure restrictions.
 
 ## Technical decisions
 
@@ -554,3 +554,146 @@ version upgrades/overrides, business features/queues, authentication/authorizati
 tenant logic, schema/migrations, caching, notifications, outbox, volume deletion,
 Git staging/commits/pushes or deployments. Phase 2 has not started. Stop for owner
 review and explicit approval of any next implementation scope.
+
+## Task 2.2 — Core identity schema and first migration (2026-11-26)
+
+### Authorization and pre-implementation review
+
+- Owner accepted Task 2.1 architecture and explicitly authorized only Task 2.2.
+  Both platform-controlled and self-service onboarding are approved directions.
+  The earlier Docker-unavailable review stopped before implementation; owner
+  started the existing services and explicitly resumed this task.
+- Re-read the full Task 2.2 attachment, AGENTS, README, progress, architecture,
+  Prisma/configuration, DatabaseModule/PrismaService, target guards, real tests,
+  Compose, manifest/lock and CI. Repository hanoflow-backend, clean initial tree,
+  branch feature/phase-2-identity, HEAD b1b23c0 were verified.
+- Portable runtime verified: Node 24.22.3, npm 11.19.1,
+  C:\dev-tools\node24\node.exe; process-local PATH only. Dependencies/Prisma override
+  unchanged. No installation, upgrade, shadow database or new privilege request.
+- Docker inspections found the original PostgreSQL/Redis/test Redis healthy on
+  loopback 5434/6380/6381. Existing PG services on 5432/5433 were untouched.
+- Before writing schema, read-only transactions inspected BOTH actual databases:
+  hanoflow and hanoflow_test, user hanoflow, PostgreSQL 18.7, public schema, UTC,
+  en_US.utf8 locale, UTF8 Unicode collation support. Catalog inventory found no
+  non-system relations, migration table, enums, public routines/domains or data.
+  Only public schema and the standard plpgsql extension existed. No conflicts or
+  drift were found. URL guards ran before connecting; deployment additionally
+  required exact 127.0.0.1:5434, expected database and only schema=public options.
+
+### Implemented schema and technical decisions
+
+- Four models only: global User, company Tenant, Membership and minimum AuditEvent.
+  Native UUIDv4 comes from PostgreSQL gen_random_uuid() for Prisma and direct SQL;
+  timestamptz(3) stores instants. Prisma maintains updatedAt on Prisma writes;
+  direct SQL writers must do so explicitly. No extension/trigger was introduced.
+- User/tenant begin PENDING. All approved lifecycle states are native enums.
+  Canonical email remains unique after deactivation; slugs remain unique after
+  closure. No email/slug reuse or release policy/workflow was silently added.
+- Display email is preserved; canonical email trims exact outer ASCII whitespace
+  then uses PostgreSQL 18 pg_unicode_fast Unicode full lowercasing. C collation
+  provides byte-exact validation/uniqueness independent of cluster locale/ICU.
+  SQL rejects blank/mismatched canonical values. No provider-specific rewriting,
+  ownership verification, full syntax validator or SMTP policy was added.
+- Slug is 1–100 lowercase ASCII alphanumeric characters with single hyphen
+  separators; name is bounded and nonblank. Limits and normalization are technical
+  defaults within approved scope; no onboarding policy or owner field exists.
+- Membership unique (tenantId,userId), unique (tenantId,id), user/status and
+  tenant/status/id indexes. REMOVED iff removedAt exists; removal cannot predate
+  first joinedAt. Future reactivation must reuse the row, clear removedAt and
+  audit the transition; no workflow or automatic audit writer exists now.
+- Audit scopes PLATFORM/TENANT express namespace, null actor expresses a system
+  event in either namespace; scope and tenant presence must agree. Outcomes are
+  SUCCESS/FAILURE/DENIED. Correlation UUID persists; target identifier may be null
+  when no target exists. Bounded metadata accepts only an object up to 4096 bytes
+  in PostgreSQL JSONB text representation. Future writers require per-action safe
+  allowlists/redaction; shape/size cannot recognize secrets. No public writer.
+- Four FKs all restrict delete/update, preserving identity references/history.
+  Audit has no updatedAt; append-only permissions are NOT implemented. No RLS,
+  roles, credentials, owner invariants or complete tenant-isolation claim.
+- Detailed field/index/check definitions, ER diagram, deferred product policies,
+  future requirements and migration/Studio instructions are in IDENTITY.md.
+
+### Migration safety and deployment sequence
+
+- Created 20261126190000_core_identity with installed Prisma migrate diff
+  --from-empty --to-schema prisma/schema.prisma --script, without a datasource or
+  shadow database. Reviewed all SQL before application: only four tables, five
+  enums, thirteen identity indexes including primary keys, four FKs and eight
+  SQL-only CHECK constraints. Added canonical column C collation and transactional
+  BEGIN/COMMIT. No DROP, reset, db push, extension/role changes or existing data
+  deletion. Preserve this reviewed applied SQL unchanged.
+- Initial stricter temporary URL check refused existing schema=public before
+  connecting/deploying; allowlisted only that known option after review. An inline
+  PowerShell/Node quoting error affected a read-only diagnostic, corrected using
+  a temporary script. Neither event changed database state.
+- Guarded hanoflow_test migration succeeded first; status up to date, Prisma diff
+  empty. All 46 real DB tests passed before development application. Rechecked
+  development still empty, then deployed identical SQL; status up to date and
+  Prisma diff empty. No new credentials, privileges or shadow database required.
+- Both migration records finished successfully with no rollback and identical SHA256
+  2c83680416255de3c430b30238525fc9b02b4dfedf96006e245cec3ccfb93bda.
+  Final exact row counts in User/Tenant/Membership/AuditEvent are 0 in BOTH databases;
+  all owned test fixtures were removed, migration records retained.
+
+### Actual verification
+
+| Command/check                                                                                       | Actual result                                                     | Reported test duration    |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------- |
+| npm test                                                                                            | 13 suites, 155/155 passed, original coverage retained             | 18.567s                   |
+| npm run test:db                                                                                     | 2 suites, 46/46 passed (4 original + 42 new)                      | 38.955s                   |
+| npm run test:redis                                                                                  | 1 suite, 11/11 passed, normal exit with detectOpenHandles         | 60.982s                   |
+| Total                                                                                               | 16 suites, 212/212 passed, no skipped tests                       | Per-layer durations above |
+| npm run db:format / db:validate / db:generate                                                       | Passed; client 7.10.1 generated into ignored src/generated/prisma | —                         |
+| npm run typecheck / lint / build                                                                    | Passed                                                            | —                         |
+| npm ls --all --json                                                                                 | Passed, consistent dependency tree                                | —                         |
+| db:migrate:deploy / status (test, then development)                                                 | Both succeeded, up to date                                        | —                         |
+| Installed Prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code | Both targets exit 0, no difference                                | —                         |
+| Compiled production AppModule/bootstrap setup                                                       | Initialized/listened on ephemeral loopback, closed normally       | —                         |
+| Compiled REST health / readiness                                                                    | HTTP 200 / 200; real PostgreSQL and Redis up                      | —                         |
+| Compiled GraphQL health                                                                             | HTTP 200, data.health.status ok                                   | —                         |
+| Package/lock preservation                                                                           | SHA256 identical to pre-implementation snapshots                  | —                         |
+
+The 42 new real tests cover UUID defaults including direct SQL, Unicode/trim email,
+duplicate/inconsistent addresses, all lifecycle values/invalid enums, tenant slug
+constraints, many-to-many relationships, duplicate/FK/composite references,
+removal chronology and same-row reactivation support, unrelated lifecycle
+preservation, audit scope/correlation/optional actor/history/metadata, exact
+migration checksum and expected tables/checks/indexes/collation. Cleanup uses only
+allocated UUIDs; one direct SQL fixture is rolled back in its own transaction.
+No offline test duplicates database constraints; original offline guards remain.
+
+Real Redis regression observed retry gaps 1006ms/2020ms and active shutdown budget
+29018ms. Only the verified test container was stopped/restarted by existing tests;
+it was restored healthy and marker identity verified afterward. Development PG
+start time remained 2026-11-26T18:03:22.348485469Z; development Redis remained
+2026-11-26T18:03:22.110054088Z. All original bindings and volumes remain intact.
+No development jobs were published. Compiled smoke used real development
+dependencies, ephemeral loopback HTTP and normal app.close, without public models.
+
+Final `npm run format:check` and `git diff --check` passed. Temporary scripts were
+removed, generated/build files remain ignored, and the Git staging area is empty.
+
+### Files, CI and handoff
+
+- Created prisma/migrations/20261126190000_core_identity/migration.sql,
+  test/identity.database-spec.ts and docs/architecture/IDENTITY.md.
+- Updated prisma/schema.prisma, README.md, AGENTS.md, architecture DATABASE.md and
+  OVERVIEW.md, development TESTING.md and this progress record.
+- CI change is limited to setting DATABASE_URL to TEST_DATABASE_URL for the
+  existing database migration step. Previously it migrated hanoflow while tests
+  queried hanoflow_test. Other jobs/checks remain intact. GitHub Actions was NOT
+  executed by this agent; owner-reported earlier success remains separate evidence.
+- Temporary safety/smoke scripts are removed before handoff. Generated client and
+  compiled output stay ignored. No manifest/lock/override, Compose, runtime module,
+  target-guard or existing test changes. Existing security advisory and production
+  deployment restrictions remain; resolving them requires separate approval.
+- Future requirements: credentials/authentication and opaque sessions, RBAC and
+  multi-owner invariant, both onboarding workflows, trusted tenant context and
+  staged RLS before tenant APIs, retention/anonymization/email and slug reuse
+  policies, audit writer/allowlists/immutability and reviewed PostgreSQL upgrades.
+- Manual checks: activate Node24, db:validate/generate/typecheck, npm test,
+  test:db with original distinct guarded URLs, redis:test:inspect/test:redis, build,
+  and existing health queries. Optional Studio instructions are in IDENTITY.md;
+  Studio can modify data, so inspect only and verify its listener is loopback.
+- No Git staging, commits, pushes, merges or deployments. No Task 2.3 work started.
+  Recommend owner review of Task 2.2 before separately specifying/authorizing 2.3.
