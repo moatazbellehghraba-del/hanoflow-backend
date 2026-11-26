@@ -1,9 +1,9 @@
-# Core identity database foundation — Tasks 2.2 through 2.4
+# Core identity database foundation — Tasks 2.2 through 2.5
 
 ## Boundary and approved direction
 
 User, Tenant, Membership, AuditEvent and PasswordCredential persistence is implemented. There
-are no identity endpoints, public session workflows, roles, owner assignments,
+are no public identity, session or role-management endpoints,
 invitations, onboarding services or RLS policies. All access remains through the
 existing singleton PrismaService exported by the non-global DatabaseModule.
 
@@ -35,6 +35,11 @@ erDiagram
     User o|--o{ AuditEvent : actor
     Tenant o|--o{ AuditEvent : context
 ```
+
+Task 2.5 adds tenant-owned predefined roles and role assignments, effective
+permissions, service-enforced eligible-owner protection and trusted tenant-bound
+session context. See [authorization architecture](AUTHORIZATION.md) for the exact
+matrix, composite constraints, delegation and future global lifecycle obligations.
 
 ## Fields and lifecycle
 
@@ -198,8 +203,7 @@ for acceptance.
 
 See [testing instructions](../development/TESTING.md) and
 [actual verification](../development/PROGRESS.md). Authentication workflows,
-opaque sessions, roles/ownership, both onboarding workflows and staged RLS need
+public session workflows, global lifecycle operations, onboarding and staged RLS need
 separate authorization. Task 2.3 completes only password primitives/persistence;
-Task 2.4 implements only internal session/token foundations; Task 2.5 has not
-started. Existing production deployment
+Task 2.5 adds internal RBAC and trusted tenant contexts; Task 2.6 has not started. Existing production deployment
 restrictions remain unchanged.

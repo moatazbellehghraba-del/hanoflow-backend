@@ -49,6 +49,12 @@ Interactive operations use maxWait1s/timeout5s and transaction-local lock_timeou
 750ms. See [session transactions](SESSIONS.md) for lock order, durable replay audit,
 authoritative time and tested multi-instance concurrency.
 
+Task 2.5 adds the fourth migration, 20261126220000_rbac_tenant_context: four RBAC
+tables, scoped/composite keys, tenant-bound session references and refresh versions.
+Only the five system Permission rows are seeded. Bootstrap provisioning is an
+explicit trusted internal transaction, never application startup business data.
+See [authorization architecture](AUTHORIZATION.md) for constraints and lock order.
+
 ## Tests and actual verification
 
 Default unit/HTTP tests use a fake URL and an overridden Prisma provider; they verify lifecycle, DI, safe failure behavior and readiness responses without PostgreSQL. The separate test:db suites use real PrismaService, explicitly required TEST_DATABASE_URL, connectivity/readiness and identity constraint tests. Identity tests write only uniquely identified owned fixtures and delete only those exact IDs; direct SQL fixture insertion is rolled back. No truncate/reset or arbitrary data cleanup occurs. Missing configuration/connectivity fails rather than silently skipping. CI migrates its ephemeral test database before the suites. See PROGRESS.md for executed local checks; configured CI is not evidence of a completed GitHub run.
@@ -59,7 +65,7 @@ Historical 2026-11-25 Task 1.2.1 verification passed against PostgreSQL 18.7: 39
 
 ## Future tenant design - not implemented
 
-Use a shared PostgreSQL database with tenant-scoped records. Resolve tenant context from trusted authenticated identity, not arbitrary request fields. Apply authorization and tenant predicates to reads, writes, joins, aggregates, cache keys, integrations and background jobs. Use composite unique constraints and tenant-aware foreign keys to prevent relationships crossing tenants. Platform-wide operations need explicit separate authorization and auditability. Test direct and indirect cross-tenant access denial, including concurrent operations. No tenant entities, tenant constraints, authentication or Row-Level Security exist yet; readiness is not an isolation guarantee.
+Use a shared PostgreSQL database with tenant-scoped records. Resolve tenant context from trusted authenticated identity, not arbitrary request fields. Apply authorization and tenant predicates to reads, writes, joins, aggregates, cache keys, integrations and background jobs. Use composite unique constraints and tenant-aware foreign keys to prevent relationships crossing tenants. Platform-wide operations need explicit separate authorization and auditability. Test direct and indirect cross-tenant access denial, including concurrent operations. Tenant identity/RBAC constraints now exist; public authentication, resource authorization and Row-Level Security remain incomplete. Readiness is not an isolation guarantee.
 
 ## Future transactions and finance - not implemented
 

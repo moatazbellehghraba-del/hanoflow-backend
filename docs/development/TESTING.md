@@ -73,6 +73,18 @@ Focused command: `npm run test:db -- --testPathPatterns=sessions.database-spec`.
 See SESSIONS.md for policy/guarantees and PROGRESS.md for exact acceptance results.
 Default tests remain independent of PostgreSQL/Redis; no CI job change is needed.
 
+## Authorization foundation tests
+
+Task 2.5 independently reverified the 324-test baseline before implementation.
+New offline catalog/default-deny tests and real multi-pool authorization tests
+cover scoped keys, provisioning, effective permissions, runtime context forgery,
+both-credential transitions, stale/expired contexts, delegation, history, last-owner
+and authority races, rollback and bounded lock waiting. Focused command:
+`npm run test:db -- --testPathPatterns=authorization.database-spec`.
+Only owned user/tenant UUIDs and exact correlations are cleaned; the system catalog
+is never deleted. Bootstrap fixture owners are created atomically while pending.
+See AUTHORIZATION.md and PROGRESS.md for actual final results and limitations.
+
 ## Dedicated Redis test environment
 
 Run from the backend repository:

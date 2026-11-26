@@ -34,7 +34,7 @@ Use the exported singleton PrismaService through DatabaseModule; never create ex
 
 Commit reviewed migrations and migration_lock.toml. Use db:migrate:dev only on disposable development databases; cancel any reset prompt unless reset is explicitly authorized. Use db:migrate:deploy in a controlled release step, never in application startup. Do not replace migration history with db push or delete volumes/data. Task 2.2 introduces the first migration, 20261126190000_core_identity. Preserve its SQL-only checks and canonical-email collation; never edit applied history. No shadow database or new privileges were used or authorized for this task.
 
-The design is a shared PostgreSQL database with tenant-scoped records. Tasks 2.2/2.3 implement User, Tenant, Membership, minimum AuditEvent and PasswordCredential persistence. Follow docs/architecture/IDENTITY.md for UUIDv4, Unicode email normalization, lifecycle invariants, restricted FKs and future composite references. Both controlled and self-service onboarding are approved directions; no workflows exist. No public authentication workflows, roles, owner invariant, authorization or RLS exist. Do not expose tenant-data APIs before dedicated access/isolation work. Enforce constraints in the database; wrap related writes in transactions with deliberate isolation/concurrency control. Do not use floating point for money; use integer minor units or exact decimals with explicit currency and rounding. COD, settlements and reconciliation require auditable records, idempotent processing and protection from duplicate/concurrent postings. Use transactional outbox patterns when atomic database and event consistency becomes necessary.
+The design is a shared PostgreSQL database with tenant-scoped records. Tasks 2.2/2.3 implement User, Tenant, Membership, minimum AuditEvent and PasswordCredential persistence. Follow docs/architecture/IDENTITY.md for UUIDv4, Unicode email normalization, lifecycle invariants, restricted FKs and future composite references. Both controlled and self-service onboarding are approved directions; no workflows exist. Task 2.5 adds internal tenant RBAC and service-enforced owner protection. Public authentication workflows and RLS remain unimplemented. Do not expose tenant-data APIs before dedicated access/isolation work. Enforce constraints in the database; wrap related writes in transactions with deliberate isolation/concurrency control. Do not use floating point for money; use integer minor units or exact decimals with explicit currency and rounding. COD, settlements and reconciliation require auditable records, idempotent processing and protection from duplicate/concurrent postings. Use transactional outbox patterns when atomic database and event consistency becomes necessary.
 
 Keep /health and GraphQL health as dependency-free liveness; /health/ready must query PostgreSQL and Redis and return a safe 503 on either failure. Missing/malformed DATABASE_URL fails startup; an unreachable database leaves the process live but unready. Never log connection strings or raw driver errors. Use TEST_DATABASE_URL for the separate real database suite; do not mock that suite or silently skip it when PostgreSQL is unavailable. Default unit/HTTP tests must remain independent of PostgreSQL and Redis. Override both RedisService and its private REDIS_PROBE_CLIENT provider. The real PostgreSQL suite overrides Redis only and must retain real Prisma connectivity.
 
@@ -66,7 +66,7 @@ Unicode, legacy verification, rehash compare-and-swap and benchmark limitations.
 
 Task 2.4 adds non-global SessionsModule with only internal SessionsService exported;
 AuditModule owns its narrow transactional writer. No Identity/Sessions cycle,
-public authentication endpoints, guards, transports or tenant/elevated scope.
+public authentication endpoints, guards, transports or elevated scope.
 Require ACTIVE user + verified email from current database state. PostgreSQL owns
 all session/token state; never use Redis as authority. Tokens are 32 random bytes,
 purpose-prefixed canonical Base64URL, SHA256 digests only in storage. Never log,
@@ -77,6 +77,23 @@ one-unconsumed partial index, lineage checks and both prior migration checksums.
 Only refresh extends idle; absolute expiry stays fixed. Revoke-all is serialized
 with creation on User. No automatic retries on ambiguous commits or retention jobs.
 See SESSIONS.md for policy, trusted callers, concurrency guarantees and limitations.
+
+## Authorization foundation
+
+Task 2.5 adds non-global AuthorizationModule, tenant-aware Role/Permission/
+MembershipRole/RolePermission and runtime-minted frozen contexts. Only validated
+TENANT sessions can mint contexts; copied objects/actor IDs never prove authority.
+Always use current PostgreSQL mappings intersected with the closed template ceiling,
+default-deny unknown/empty requirements, no wildcard/platform/financial grants.
+Revalidate inside mutations; use requireIn for future resource checks/writes in the
+same transaction. Preserve User -> Session -> sorted Tenant -> Membership -> Refresh
+lock order and acquire tenant write locks immediately for administrative mutations.
+Both current access/refresh credentials are mandatory for tenant transitions;
+rotate/version them atomically and preserve strict replay revocation. Keep last-owner
+checks for active tenants, and integrate future global user/email/role lifecycle
+changes across every affected tenant. Provisioning is bootstrap-only, never startup
+business seeding or normal admin authority. See AUTHORIZATION.md. No RLS, public
+guards/management endpoints or Task 2.6 implementation without separate approval.
 
 ## Redis infrastructure
 

@@ -4,12 +4,12 @@ Updated: 2026-11-26 (Africa/Lagos).
 
 ## Current phase
 
-Phase 2: identity, password and internal session foundations implemented through Task 2.4.
+Phase 2: identity, sessions, internal RBAC and trusted tenant context through Task 2.5.
 Not production-ready; existing deployment restrictions remain in force.
 
 ## Current task
 
-Task 2.4 complete: PostgreSQL sessions, digest-only opaque tokens, strict transactional refresh/replay revocation, narrow audit integration and reviewed third migration. All 324 tests passed across 24 suites. Production deployment remains blocked. Task 2.5 has not started; await explicit approval.
+Task 2.5 complete: tenant RBAC, runtime-proven contexts, both-credential tenant transitions, transactional delegation/owner protections and reviewed fourth migration. All 388 tests passed across 26 suites. Production deployment remains blocked; Task 2.6 has not started.
 
 ## Completed tasks
 
@@ -25,7 +25,7 @@ Task 2.4 complete: PostgreSQL sessions, digest-only opaque tokens, strict transa
 
 ## Pending tasks
 
-- Owner review of Task 2.4, then separately scope and authorize Task 2.5. Public authentication flows/transports/guards, compromised-password screening, trusted tenant context, RBAC/ownership, onboarding and RLS remain future work.
+- Owner review of Task 2.5 and separate authorization for Task 2.6 RLS. Public authentication flows/transports/guards, compromised-password screening, resource policies, onboarding, global lifecycle integration and RLS remain future work.
 - Resolve the existing GraphQL Tools production advisory through a reviewed compatible dependency change before deployment; retain all existing exposure restrictions.
 
 ## Technical decisions
@@ -1063,3 +1063,197 @@ removed, generated/build artifacts remain ignored, and the staging area is empty
   RLS and existing production advisory. No database audit immutability claim.
 - No staging, commits, pushes, merges or deployments. Owner review of Task2.4 and
   explicit separate scope/approval for Task2.5 are required; Task2.5 not started.
+
+## Task 2.5 — RBAC and trusted tenant context (2026-11-26)
+
+### Authorization and independently verified preconditions
+
+- Initial review correctly stopped: feature/rbac-tenant-context then lacked the
+  merged Task2.4 files while both databases had its migration. Owner synchronized
+  main/feature branches. This run independently verified clean initial feature
+  branch at4554562, complete Task2.4 source/docs/three migrations, correct repository,
+  Node24.22.3/npm11.19.1 executable C:\dev-tools\node24\node.exe, healthy original
+  PG/development Redis/isolated Redis and unchanged dependency safeguards.
+- Owner explicitly selected and retained BOTH current access and refresh tokens
+  belonging to the same eligible session/current context for tenant transitions.
+- Read/reviewed AGENTS, README, progress, identity/password/session/database/overview,
+  schema/history, tests/guards, transaction pool, session/audit modules, configuration,
+  logging/errors, manifest/lock and CI. No new dependency or installation permissions.
+- Actual guarded hanoflow_test/hanoflow databases: public schema, same expected user,
+  all three original migration checksums/status match files, no Prisma schema diff.
+  All eight existing tables had zero rows. In particular no existing tenant needed
+  unapproved role provisioning or ownership remediation. Recorded fingerprints
+  without printing row contents. Original infrastructure loopback5434/6380/6381.
+- Independently ran original324 tests BEFORE implementation:
+  offline218/19 suites14.575s; PostgreSQL95/4 suites13.095s;
+  Redis11/1 suite71.552s. Dependency tree passed. No remaining baseline mismatch.
+
+### Schema, catalog and selected technical defaults
+
+- Added tenant-owned Role, closed system Permission, retained MembershipRole
+  intervals and RolePermission. Native UUIDv4, timestamptz3, explicit restricted
+  FKs. Role code is a predefined enum, display name is not authority, version fixed1.
+  Codes unique per tenant and composite tenant/id keys support scoped references.
+- Permission codes: tenant.memberships.read, tenant.memberships.manage,
+  tenant.roles.read, tenant.roles.assign, tenant.ownership.manage. Scope TENANT only,
+  closed catalog CHECK and scope-compatible composite mapping FK. No wildcard,
+  operational, platform or financial permission is active.
+- OWNER gets all five; ADMIN first four; DISPATCHER, WAREHOUSE_OPERATOR,
+  FINANCE_OFFICER, COURIER and MERCHANT get none. Exact semantics/matrix are in
+  AUTHORIZATION.md. Authority requires actual DB mappings intersected with the
+  immutable compiled ceiling, never a label alone. This prevents injected ADMIN
+  ownership mappings from escalating rights. Unknown permissions default-deny.
+- MembershipRole retains grant/removal times and actors; partial unique active
+  key prevents duplicates; reassignment creates a new row. Composite keys reject
+  cross-tenant membership/role/mapping links. Owner role cannot be INACTIVE even
+  for pending tenants, a conservative technical default. No custom role API.
+- Sessions gain TENANT scope and paired nullable tenant/member references, with
+  (tenantId,membershipId,userId) FK matching Membership. Existing IDENTITY sessions
+  remain null/unbound. RefreshToken gains positive contextVersion backfilled from
+  Session. No platform scope, token purpose or lifetime weakening.
+
+### Internal services and runtime trust
+
+- Non-global AuthorizationModule -> SessionsModule/DatabaseModule/AuditModule;
+  Sessions has no Authorization dependency. Exports AuthorizationService and the
+  separate bootstrap-only RoleProvisioner. Added narrow TenantAuditWriter to Audit.
+  No public controller/resolver/guard, extra Prisma client or placeholder module.
+- ProvisionIn is a caller-owned trusted onboarding/bootstrap transaction, not
+  normal administration. It validates IDs, bounds locks, verifies catalog/mappings,
+  creates missing roles only for PENDING tenants, returns0 on matching repeat,
+  never silently overwrites drift, and sanitizes errors without raw causes.
+  Seeds no user/company/owner or business record on startup. Future onboarding must
+  create tenant/member/owner and activate atomically with the invariant check.
+- Trusted context resolves only from current validated TENANT access credentials.
+  Requested tenant is an untrusted selector matched to the session/membership.
+  Frozen context/permissions use private runtime WeakMap proof, so copies, arbitrary
+  actor IDs and submitted permission arrays fail. Its private access credential
+  never becomes an enumerable field, stored record or audit/log value.
+- Resolve/check/require/set checks reread current database state, reject ineligible
+  user/member/tenant/roles and stale/revoked/expired sessions. Snapshot permissions
+  are informational only. Explicit all/any semantics reject empty, unknown and
+  malformed requirements. Expected resource tenant must match the context.
+  requireIn composes current RBAC and future resource predicates/writes in one tx.
+- Role changes revalidate actor authority inside their transaction. Delegation
+  requires the relevant assignment/ownership power and every target-template
+  permission. ADMIN cannot manage OWNER. All self-assignment denied; authorized
+  demotion/removal permitted only when ownership remains valid. New grants require
+  eligible ACTIVE/verified target users and ACTIVE membership/role.
+- Authorized repeated grants/missing removals are unchanged, without duplicate
+  history/audit. Membership status changes affect only this tenant's Membership,
+  never User. Removal closes grants; reactivation reuses the membership and clears
+  removedAt without restoring removed grants. Suspension retains assignments but
+  current eligibility blocks their use. Reactivation may restore an unexpired,
+  unrevoked session; revocation remains a separate security operation.
+
+### Owner invariant, context rotation and concurrency
+
+- Eligible owner: ACTIVE verified User, ACTIVE Membership, unremoved OWNER grant,
+  ACTIVE version1 role with ownership.manage mapping. Active tenants retain at
+  least one across every supported assignment/removal/status mutation. Tenant
+  write lock serializes owner counts. Rejections throw inside the transaction to
+  roll back state/history/audit. Multiple owners supported; pending bootstrap distinct.
+- Future global user suspension/deactivation/email changes must lock user and every
+  affected tenant in stable order, re-evaluate proposed eligibility and assert
+  invariants before commit. Future tenant activation/role semantics must integrate
+  the same guard. No global lifecycle workflows or universal SQL-admin guarantee.
+- Extended lock order User -> Session -> sorted Tenant -> Membership -> Refresh.
+  Mutations acquire tenant FOR UPDATE immediately during validation, avoiding
+  shared-to-exclusive upgrade deadlocks. READ COMMITTED/maxWait1s/timeout5s/local
+  lock_timeout750ms and original pool5/statement2s/query3s preserved. No local mutex,
+  unbounded waiting, unrelated external work or automatic ambiguous-outcome retry.
+- Both-credential context transition transaction verifies same session/current
+  context, user/tenant/member eligibility and expiry; consumes old refresh, increments
+  version, binds context, issues new credentials and audits before commit/return.
+  Absolute lifetime unchanged. Old access invalid; consumed refresh retains replay
+  revocation, unconsumed stale-version refresh cannot restore a context.
+- Duplicate context transitions or transition versus refresh yield one issuance
+  followed by strict replay revocation of all session credentials. No grace window.
+  Mismatched session pairs fail without unrelated revocation. Clients must
+  single-flight refresh/context selection and reauthenticate on lost/ambiguous
+  responses. Context/role revocation does not cancel already executing business work.
+
+### Migration and actual verification
+
+- Fourth migration20261126220000_rbac_tenant_context: four tables, three new enums,
+  added TENANT label, scoped session references/refresh version, nine restricted FKs,
+  fifteen indexes including PKs and seven SQL-only CHECKs. Five system Permission
+  rows only; no tenant/owner seeding. Reviewed generated old/new-schema diff plus
+  custom SQL in BEGIN/COMMIT; text scope CHECK avoids unsafe new enum literal use.
+- Guarded test deploy/status/diff passed. Original95 DB tests passed against the
+  new schema first; expanded142/5 suites passed before development migration.
+  Rechecked development fingerprints/target/history, deployed identical SQL;
+  both databases up to date, schema diffs empty. Final old-table fingerprints
+  preserved, tenant/user/session fixtures gone, system catalog retained.
+- Original checksums unchanged:
+  core2c83680416255de3c430b30238525fc9b02b4dfedf96006e245cec3ccfb93bda;
+  credential e431694c00462c397cb225ea0f585b67e1ff751e0c551ad6f6facc40b32e4c9c;
+  session e28edb10b7357897b13b13fff79af431cc3fb899d28a7d39551c89b54968a233.
+  New fourth checksum e05e79a1ebda21adffce1e489fa2e5a1ec0f58c10f60647725c93be0283a72bc.
+
+| Final command/check                        | Actual result                                       | Reported test duration    |
+| ------------------------------------------ | --------------------------------------------------- | ------------------------- |
+| npm test                                   | 20 suites,235/235 passed                            | 26.427s                   |
+| npm run test:db                            | 5 suites,142/142 passed                             | 38.829s                   |
+| npm run test:redis                         | 1 suite,11/11 passed, normal detectOpenHandles exit | 76.561s                   |
+| Complete total                             | 26 suites,388/388; original324 retained,64 added    | Per-layer durations above |
+| Prisma format/validate/generate            | Passed; ignored client7.10.1 regenerated            | —                         |
+| TypeScript/ESLint/build                    | Passed                                              | —                         |
+| Dependency tree and manifest/lock/override | Consistent; dependency files unchanged              | —                         |
+| Test/development migration status/diff     | Up to date/empty; previous SQL unchanged            | —                         |
+
+17 offline catalog/default-deny cases and47 real PostgreSQL cases added. Existing
+catalog tests retain all prior assertions and extend tables/checks/FKs/indexes and
+fourth checksum; use explicit C ordering for deterministic names. Real cases cover
+runtime forgeries, current eligibility, unknown/empty permissions, scoped keys,
+history/idempotence, provisioning drift, delegation, expiry/context invalidation,
+both credential pairing, rollback, owner protection and actual multi-pool races.
+An initial unused test import caused lint failure and was removed; final gates pass.
+
+Independent application pools verified different backend PIDs. Two owner removals
+and removal-vs-suspension each produced changed/denied, preserving one eligible
+owner. Assignment/removal races left no surviving grant for a removed membership;
+actor authority was rechecked after waiting. Tenant transitions/refresh produced
+issued/replay and durable revocation. Tenant contention failed within budget,
+and unrelated tenant operations succeeded. No mocked transaction substitute.
+
+Redis final observed retry gaps1021/2034ms; active shutdown29022ms. Only verified
+test Redis restarted; development PG/Redis start times/bindings/volumes preserved.
+Original starts remain2026-11-26T18:03:22.348485469Z and
+2026-11-26T18:03:22.110054088Z. Test Redis remains healthy on6381 with its marker.
+
+Compiled production AppModule initialized/listened on ephemeral loopback and closed
+normally. REST liveness/readiness returned200/200 with real PostgreSQL/development
+Redis; GraphQL health returned200,data.health.status ok. Final format:check and
+git diff --check passed. Temporary helpers removed, generated/build artifacts
+ignored, staging area empty. Dependency/CI/Compose/guards and all prior SQL files
+remain unchanged.
+
+### Audit, files, limitations and handoff
+
+- Tenant-scoped provisioning/role/ownership/member/context events commit with
+  successful changes. Metadata only fixed role/status/count, actor from verified
+  context, bootstrap null system actor, valid correlation and scoped target IDs.
+  Denied/random attempts create no unbounded audit stream; replay's required
+  revocation/audit still commits before failure. No secrets/digests/request bodies,
+  unrelated tenant context or audit immutability claim.
+- Created authorization module/service/catalog/provisioner and catalog spec;
+  audit/tenant-audit.writer.ts; test/authorization.database-spec.ts; fourth migration;
+  architecture/AUTHORIZATION.md. Modified schema, AppModule, SessionsService,
+  AuditModule, existing catalog tests, README/AGENTS, identity/password/session/
+  database/overview/testing docs and this record. Temporary safety/schema/smoke
+  helpers removed; generated/build files stay ignored.
+- No manifest/lock/override, dependency version, CI job, Compose, target-guard or
+  existing migration change. No GitHub Actions run by this agent. No reset, shadow
+  DB, extension, new credential/privilege, platform role or RLS policy.
+- Manual commands and exact role matrix, schemas/ER diagram, module graph,
+  transaction contracts and future resource-policy boundaries are in AUTHORIZATION.md.
+  Focused real test command: npm run test:db -- --testPathPatterns=authorization.database-spec.
+  Never dump credentials/private proof state or manually bootstrap development owners.
+- Remaining: Task2.6 RLS, public Auth/guards/transports, global owner-lifecycle
+  integration, resource-level policies, client single-flight, compromised-password
+  screening, audit/assignment retention, operational capacity and existing
+  production advisory. RBAC does not grant merchant-wide shipments, unassigned
+  courier deliveries, warehouse/financial access or state-transition authority.
+- No staging, commits, pushes, merges or deployment by this agent. Owner review
+  and explicit approval required before Task2.6; Task2.6 has not started.

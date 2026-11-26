@@ -430,7 +430,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     >`
       SELECT migration_name, checksum, finished_at, rolled_back_at FROM "_prisma_migrations" ORDER BY migration_name
     `;
-    expect(rows).toHaveLength(3);
+    expect(rows).toHaveLength(4);
     expect(rows[0]).toMatchObject({
       migration_name: migrationName,
       checksum: createHash('sha256')
@@ -465,18 +465,34 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       rolled_back_at: null,
     });
     expect(rows[2]?.finished_at).toBeInstanceOf(Date);
+    expect(rows[3]).toMatchObject({
+      migration_name: '20261126220000_rbac_tenant_context',
+      checksum: createHash('sha256')
+        .update(
+          readFileSync(
+            'prisma/migrations/20261126220000_rbac_tenant_context/migration.sql',
+          ),
+        )
+        .digest('hex'),
+      rolled_back_at: null,
+    });
+    expect(rows[3]?.finished_at).toBeInstanceOf(Date);
   });
 
   it('contains exactly the approved tables, checks, indexes and restricted foreign keys', async () => {
     const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
-      SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename
+      SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename COLLATE "C"
     `;
     expect(tables.map((row) => row.tablename)).toEqual([
       'AccessToken',
       'AuditEvent',
       'Membership',
+      'MembershipRole',
       'PasswordCredential',
+      'Permission',
       'RefreshToken',
+      'Role',
+      'RolePermission',
       'Session',
       'Tenant',
       'User',
@@ -485,7 +501,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     const checks = await prisma.$queryRaw<
       Array<{ conname: string; convalidated: boolean }>
     >`
-      SELECT conname, convalidated FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' AND contype='c' ORDER BY conname
+      SELECT conname, convalidated FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' AND contype='c' ORDER BY conname COLLATE "C"
     `;
     expect(checks).toEqual(
       [
@@ -508,12 +524,21 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
         'Tenant_name_check',
         'Tenant_slug_check',
         'User_canonicalEmail_check',
-      ].map((conname) => ({ conname, convalidated: true })),
+        'MembershipRole_removal_check',
+        'Permission_catalog_check',
+        'RefreshToken_context_check',
+        'Role_template_check',
+        'Role_owner_active_check',
+        'RolePermission_scope_check',
+        'Session_tenant_context_check',
+      ]
+        .sort()
+        .map((conname) => ({ conname, convalidated: true })),
     );
     const foreignKeys = await prisma.$queryRaw<
       Array<{ conname: string; confdeltype: string; confupdtype: string }>
     >`
-      SELECT conname, confdeltype::text, confupdtype::text FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' AND contype='f' ORDER BY conname
+      SELECT conname, confdeltype::text, confupdtype::text FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' AND contype='f' ORDER BY conname COLLATE "C"
     `;
     expect(foreignKeys).toEqual(
       [
@@ -526,41 +551,69 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
         'RefreshToken_sessionId_fkey',
         'RefreshToken_sessionId_predecessorId_fkey',
         'Session_userId_fkey',
-      ].map((conname) => ({ conname, confdeltype: 'r', confupdtype: 'r' })),
+        'Session_tenantId_fkey',
+        'Session_tenantId_membershipId_userId_fkey',
+        'Role_tenantId_fkey',
+        'MembershipRole_tenantId_membershipId_fkey',
+        'MembershipRole_tenantId_roleId_fkey',
+        'MembershipRole_grantedByUserId_fkey',
+        'MembershipRole_removedByUserId_fkey',
+        'RolePermission_tenantId_roleId_fkey',
+        'RolePermission_permissionCode_scope_fkey',
+      ]
+        .sort()
+        .map((conname) => ({ conname, confdeltype: 'r', confupdtype: 'r' })),
     );
     const indexes = await prisma.$queryRaw<Array<{ indexname: string }>>`
-      SELECT indexname FROM pg_indexes WHERE schemaname='public' AND tablename <> '_prisma_migrations' ORDER BY indexname
+      SELECT indexname FROM pg_indexes WHERE schemaname='public' AND tablename <> '_prisma_migrations' ORDER BY indexname COLLATE "C"
     `;
-    expect(indexes.map((row) => row.indexname)).toEqual([
-      'AccessToken_digest_key',
-      'AccessToken_expiresAt_idx',
-      'AccessToken_pkey',
-      'AccessToken_sessionId_idx',
-      'AuditEvent_actorUserId_createdAt_id_idx',
-      'AuditEvent_correlationId_idx',
-      'AuditEvent_pkey',
-      'AuditEvent_tenantId_createdAt_id_idx',
-      'Membership_pkey',
-      'Membership_tenantId_id_key',
-      'Membership_tenantId_status_id_idx',
-      'Membership_tenantId_userId_key',
-      'Membership_userId_status_idx',
-      'PasswordCredential_pkey',
-      'RefreshToken_digest_key',
-      'RefreshToken_expiresAt_idx',
-      'RefreshToken_one_unconsumed_per_session',
-      'RefreshToken_pkey',
-      'RefreshToken_predecessorId_key',
-      'RefreshToken_sessionId_id_key',
-      'Session_absoluteExpiresAt_idx',
-      'Session_idleExpiresAt_idx',
-      'Session_pkey',
-      'Session_userId_revokedAt_id_idx',
-      'Tenant_pkey',
-      'Tenant_slug_key',
-      'User_canonicalEmail_key',
-      'User_pkey',
-    ]);
+    expect(indexes.map((row) => row.indexname)).toEqual(
+      [
+        'Role_pkey',
+        'Role_tenantId_code_key',
+        'Role_tenantId_id_key',
+        'Permission_pkey',
+        'Permission_code_scope_key',
+        'MembershipRole_pkey',
+        'MembershipRole_active_key',
+        'MembershipRole_grantedByUserId_idx',
+        'MembershipRole_removedByUserId_idx',
+        'MembershipRole_tenantId_membershipId_removedAt_idx',
+        'MembershipRole_tenantId_roleId_removedAt_idx',
+        'RolePermission_pkey',
+        'RolePermission_permissionCode_scope_idx',
+        'Session_tenantId_membershipId_idx',
+        'Membership_tenantId_id_userId_key',
+        'AccessToken_digest_key',
+        'AccessToken_expiresAt_idx',
+        'AccessToken_pkey',
+        'AccessToken_sessionId_idx',
+        'AuditEvent_actorUserId_createdAt_id_idx',
+        'AuditEvent_correlationId_idx',
+        'AuditEvent_pkey',
+        'AuditEvent_tenantId_createdAt_id_idx',
+        'Membership_pkey',
+        'Membership_tenantId_id_key',
+        'Membership_tenantId_status_id_idx',
+        'Membership_tenantId_userId_key',
+        'Membership_userId_status_idx',
+        'PasswordCredential_pkey',
+        'RefreshToken_digest_key',
+        'RefreshToken_expiresAt_idx',
+        'RefreshToken_one_unconsumed_per_session',
+        'RefreshToken_pkey',
+        'RefreshToken_predecessorId_key',
+        'RefreshToken_sessionId_id_key',
+        'Session_absoluteExpiresAt_idx',
+        'Session_idleExpiresAt_idx',
+        'Session_pkey',
+        'Session_userId_revokedAt_id_idx',
+        'Tenant_pkey',
+        'Tenant_slug_key',
+        'User_canonicalEmail_key',
+        'User_pkey',
+      ].sort(),
+    );
     const collations = await prisma.$queryRaw<Array<{ collname: string }>>`
       SELECT c.collname FROM pg_attribute a JOIN pg_collation c ON c.oid=a.attcollation JOIN pg_class t ON t.oid=a.attrelid JOIN pg_namespace n ON n.oid=t.relnamespace WHERE n.nspname='public' AND t.relname='User' AND a.attname='canonicalEmail'
     `;

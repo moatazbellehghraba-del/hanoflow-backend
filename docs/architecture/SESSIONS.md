@@ -1,8 +1,8 @@
-# Session management foundation — Task 2.4
+# Session management foundation — Tasks 2.4 and 2.5
 
 ## Implemented boundary and decisions
 
-PostgreSQL is authoritative for identity-only opaque sessions. Non-global
+PostgreSQL is authoritative for identity-only and tenant-bound opaque sessions. Non-global
 SessionsModule exports only SessionsService, imports DatabaseModule and AuditModule,
 and is explicitly imported by AppModule. TokenSecrets and all persistence helpers
 are private implementation details. Identity/password services have no dependency
@@ -10,16 +10,18 @@ on Sessions; there is no circular module reference or extra feature Prisma clien
 AuditModule exports a narrowly typed transactional SessionAuditWriter.
 
 No public login/logout/registration/refresh, HTTP/GraphQL guards, cookies, bearer
-transport, tenant switching, roles, platform elevation, RLS, distributed rate
+transport, public tenant switching/role management, platform elevation, RLS, distributed rate
 limits, Redis authority/cache, scheduled cleanup or business workflows are added.
-Existing production restrictions remain unchanged. Task 2.5 is not started.
+Existing production restrictions remain unchanged. Task 2.5 adds internal tenant context
+and RBAC; see AUTHORIZATION.md for the current credential, eligibility and lock contracts.
+Task 2.6 has not started.
 
-Session scope has only IDENTITY. Tenant/membership fields are deferred until their
-trusted-context and authorization invariants are designed together; there is no
-nullable future tenant context that could accidentally grant access today.
-contextVersion starts at one, must be positive, and is checked against access
-tokens. Future context switching/version changes need separate transactional
-authorization and refresh-lineage design; no such operation is available now.
+Session scope supports IDENTITY with null tenant/member references or TENANT with
+consistent user/tenant/member composite references. contextVersion starts at one,
+is positive and checked against access and refresh tokens. Internal selectTenant
+requires both current credentials, rotates them and increments the version in a
+transaction. No platform context is available. AUTHORIZATION.md defines runtime
+trusted contexts, strict replay and race semantics.
 
 Current eligibility requires User ACTIVE **and nonnull emailVerifiedAt**, checked
 from current database state at establishment, access validation and refresh.
@@ -165,7 +167,8 @@ statement_timeout2s and query_timeout3s are unchanged. SET LOCAL lock_timeout=75
 bounds contended lock waits below statement/transaction limits. No unbounded wait,
 pool expansion, in-process mutex or automatic transaction retry is used.
 
-Order: User row, Session row, RefreshToken row; revoke-all locks Sessions in ID
+Order: User row, Session row, sorted Tenant rows, Membership rows, RefreshToken row;
+revoke-all locks Sessions in ID
 order after the User. Establishment locks User exclusively before inserting.
 Refresh/revocations lock User and Session FOR UPDATE. Validation uses FOR SHARE.
 Current user-state updates also conflict with those row locks. All future session
