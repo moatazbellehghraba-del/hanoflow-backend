@@ -2,6 +2,11 @@
 
 A standalone NestJS modular monolith for HanoLink's planned multi-tenant delivery management platform. The application foundation, PostgreSQL/Prisma infrastructure and hybrid GraphQL/REST API infrastructure are implemented. Redis connectivity/readiness and BullMQ queue/worker infrastructure are implemented without production queue or worker registration. Task 2.2 adds User, Tenant, Membership and minimum AuditEvent persistence only. Authentication, authorization, onboarding workflows and business operations are not implemented. See [identity architecture](docs/architecture/IDENTITY.md).
 
+Task 2.3 adds PasswordCredential persistence and a non-global internal identity
+module with Argon2id hashing/verification, structural password policy, upgrade
+detection and bounded capacity. There are no authentication endpoints or workflows.
+See [password architecture and benchmark](docs/architecture/PASSWORDS.md).
+
 ## Requirements and setup
 
 Run commands from the dedicated `hanoflow-backend` repository directory. Use Node 24 LTS (24.15+), npm 10.9+, Git and Docker Compose v2 for local PostgreSQL. The npm lockfile records exact installed dependencies. System Node 22.17 does not meet this project's engine requirement.
@@ -109,6 +114,7 @@ See [API architecture](docs/architecture/API.md) for context, validation, error 
 - `npm run build` then `npm run start:prod`: compile and run production output.
 - `npm run lint`: ESLint with type-aware rules.
 - `npm run typecheck`: strict TypeScript including tests.
+- `npm run build` then `npm run benchmark:passwords`: offline synthetic Argon2 benchmark; prints aggregate metrics only.
 - `npm test`: Jest unit and HTTP integration tests.
 - `npm run test:e2e`: HTTP integration tests only.
 - `npm run format:check` / `npm run format`: check/apply Prettier.
@@ -217,4 +223,4 @@ testing exposed cached first-connect rejection; the corrected owned-client hando
 now recovers on the same app. Build, static gates, Prisma validation and compiled
 REST/GraphQL smoke checks passed. Phase 1 is functionally complete for local
 development only. GitHub Actions was not run; deployment remains blocked and
-Phase 2 identity persistence is implemented in Task 2.2; see [identity architecture](docs/architecture/IDENTITY.md) and PROGRESS.md for current acceptance. Task 2.3 requires separate approval.
+Phase 2 identity persistence and the internal password credential foundation are implemented through Task 2.3; see [identity architecture](docs/architecture/IDENTITY.md), [password architecture](docs/architecture/PASSWORDS.md) and PROGRESS.md. Task 2.4 requires separate approval. Compromised-password screening remains required before a complete production password policy can be claimed.

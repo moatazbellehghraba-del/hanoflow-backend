@@ -34,7 +34,7 @@ Use the exported singleton PrismaService through DatabaseModule; never create ex
 
 Commit reviewed migrations and migration_lock.toml. Use db:migrate:dev only on disposable development databases; cancel any reset prompt unless reset is explicitly authorized. Use db:migrate:deploy in a controlled release step, never in application startup. Do not replace migration history with db push or delete volumes/data. Task 2.2 introduces the first migration, 20261126190000_core_identity. Preserve its SQL-only checks and canonical-email collation; never edit applied history. No shadow database or new privileges were used or authorized for this task.
 
-The design is a shared PostgreSQL database with tenant-scoped records. Task 2.2 implements only User, Tenant, Membership and minimum AuditEvent persistence. Follow docs/architecture/IDENTITY.md for UUIDv4, Unicode email normalization, lifecycle invariants, restricted FKs and future composite references. Both controlled and self-service onboarding are approved directions; no workflows exist. No credentials, roles, owner invariant, authorization or RLS exist. Do not expose tenant-data APIs before dedicated access/isolation work. Enforce constraints in the database; wrap related writes in transactions with deliberate isolation/concurrency control. Do not use floating point for money; use integer minor units or exact decimals with explicit currency and rounding. COD, settlements and reconciliation require auditable records, idempotent processing and protection from duplicate/concurrent postings. Use transactional outbox patterns when atomic database and event consistency becomes necessary.
+The design is a shared PostgreSQL database with tenant-scoped records. Tasks 2.2/2.3 implement User, Tenant, Membership, minimum AuditEvent and PasswordCredential persistence. Follow docs/architecture/IDENTITY.md for UUIDv4, Unicode email normalization, lifecycle invariants, restricted FKs and future composite references. Both controlled and self-service onboarding are approved directions; no workflows exist. No public authentication workflows, roles, owner invariant, authorization or RLS exist. Do not expose tenant-data APIs before dedicated access/isolation work. Enforce constraints in the database; wrap related writes in transactions with deliberate isolation/concurrency control. Do not use floating point for money; use integer minor units or exact decimals with explicit currency and rounding. COD, settlements and reconciliation require auditable records, idempotent processing and protection from duplicate/concurrent postings. Use transactional outbox patterns when atomic database and event consistency becomes necessary.
 
 Keep /health and GraphQL health as dependency-free liveness; /health/ready must query PostgreSQL and Redis and return a safe 503 on either failure. Missing/malformed DATABASE_URL fails startup; an unreachable database leaves the process live but unready. Never log connection strings or raw driver errors. Use TEST_DATABASE_URL for the separate real database suite; do not mock that suite or silently skip it when PostgreSQL is unavailable. Default unit/HTTP tests must remain independent of PostgreSQL and Redis. Override both RedisService and its private REDIS_PROBE_CLIENT provider. The real PostgreSQL suite overrides Redis only and must retain real Prisma connectivity.
 
@@ -45,6 +45,22 @@ For this workstation, the existing portable Node 24 runtime is C:\dev-tools\node
 HanoFlow's local PostgreSQL host port defaults to 5434, bound only to 127.0.0.1, with internal port 5432. Existing host services on 5432/5433 are unrelated; never stop or reconfigure them. Preserve local .env secrets. Real integration tests require a distinct hanoflow_test database and enforce loopback, the dedicated port and matching user before connecting. Do not weaken that guard or mock the real suite to obtain passing tests. Restore only HanoFlow's database to a healthy state after outage tests. No dependency version changes without demonstrated need and explicit approval.
 
 Add focused Jest tests for changed behavior; keep unit tests beside source and HTTP integration tests in test/. Use shared application setup so tests enforce runtime conventions. Run npm run format:check, npm run lint, npm run typecheck, npm test and npm run build. For database changes also run db:validate, db:generate and test:db against a dedicated PostgreSQL database when available. Verify startup/health for bootstrap changes. Record failures or unavailable commands accurately. No automatic commits, pushes, remote creation or deployments. Inspect existing code before editing. Stop at the authorized task boundary.
+
+## Password credential foundation
+
+Task 2.3 adds PasswordCredential with userId as its UUID shared primary key,
+restricted User FK, encoded passwordHash and separate passwordChangedAt/updatedAt.
+Never expose/hash-log credential models or include them in audit metadata. Use the
+non-global IdentityModule exports PasswordPolicy/PasswordHasher; keep native engine
+and capacity private. Fixed Argon2id profile is 65536 KiB / 3 / 1 / 32 bytes, v19,
+library-generated salt, argon2 exactly 0.45.2. Preserve bounded native admission
+(one active, two waiting, 1s waiting deadline), PHC verification bounds and safe
+operational errors. Never weaken costs for tests or release a slot before native
+work ends. Hash outside DB transactions. No public credential workflows exist.
+Compromised-password screening remains unimplemented and required for production.
+No npm script permission was granted; native prebuilt loading worked under existing
+protections. Stop before new build permissions/toolchains. See PASSWORDS.md for
+Unicode, legacy verification, rehash compare-and-swap and benchmark limitations.
 
 ## Redis infrastructure
 

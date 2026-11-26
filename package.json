@@ -10,6 +10,7 @@
     "npm": ">=10.9"
   },
   "scripts": {
+    "benchmark:passwords": "node scripts/benchmark-passwords.mjs",
     "redis:test:up": "node scripts/redis-test.mjs up",
     "redis:test:inspect": "node scripts/redis-test.mjs inspect",
     "redis:test:stop": "node scripts/redis-test.mjs stop",
@@ -52,6 +53,7 @@
     "@nestjs/platform-express": "^12.6.0",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
+    "argon2": "0.45.2",
     "bullmq": "6.7.10",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
