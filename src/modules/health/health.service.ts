@@ -16,7 +16,9 @@ export class HealthService {
   async getReadiness(): Promise<{ status: 'ok'; database: 'up'; redis: 'up' }> {
     try {
       await Promise.all([
-        this.prisma.$queryRaw`SELECT 1`,
+        this.prisma
+          .verifyIdentity()
+          .then(() => this.prisma.$queryRaw`SELECT 1`),
         this.redis.checkReadiness(),
       ]);
       return { status: 'ok', database: 'up', redis: 'up' };

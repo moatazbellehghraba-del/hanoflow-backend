@@ -3,6 +3,11 @@ import type { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../generated/prisma/client.js';
+import {
+  DatabaseSecurityConfigurationError,
+  isDatabaseUnavailable,
+  verifyRuntimeIdentity,
+} from './runtime-identity.js';
 
 @Injectable()
 export class PrismaService
@@ -29,11 +34,19 @@ export class PrismaService
   async onModuleInit(): Promise<void> {
     try {
       await this.$connect();
-    } catch {
+      await this.verifyIdentity();
+    } catch (error) {
+      if (error instanceof DatabaseSecurityConfigurationError) throw error;
+      if (!isDatabaseUnavailable(error))
+        throw new DatabaseSecurityConfigurationError();
       // Keep liveness available during outages; readiness performs a real query
       // on every request and can recover when PostgreSQL becomes reachable.
       this.logger.warn({ event: 'database_initial_connection_unavailable' });
     }
+  }
+
+  async verifyIdentity(): Promise<void> {
+    await verifyRuntimeIdentity(this);
   }
 
   async onModuleDestroy(): Promise<void> {

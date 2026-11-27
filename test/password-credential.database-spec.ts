@@ -1,17 +1,18 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import './setup-database-env.js';
+import { createFixtureClient } from './helpers/database-fixture.js';
+import type { PrismaClient } from '../src/generated/prisma/client.js';
 import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { DatabaseModule } from '../src/infrastructure/database/database.module.js';
-import { PrismaService } from '../src/infrastructure/database/prisma.service.js';
 import { Prisma } from '../src/generated/prisma/client.js';
 import { argon2Engine } from '../src/modules/identity/passwords/password-engine.js';
 import { getTestDatabaseUrl } from './helpers/database-target.js';
 
 describe('PasswordCredential (guarded real PostgreSQL)', () => {
   let module: TestingModule;
-  let prisma: PrismaService;
+  let prisma: PrismaClient;
   let encoded: string;
   const users = new Set<string>();
   const credentials = new Set<string>();
@@ -23,7 +24,7 @@ describe('PasswordCredential (guarded real PostgreSQL)', () => {
       .useValue(new ConfigService({ DATABASE_URL: url }))
       .compile();
     await module.init();
-    prisma = module.get(PrismaService);
+    prisma = await createFixtureClient();
     expect(
       await prisma.$queryRaw<
         Array<{ name: string }>
@@ -44,6 +45,7 @@ describe('PasswordCredential (guarded real PostgreSQL)', () => {
     users.clear();
   });
   afterAll(async () => {
+    await prisma?.$disconnect();
     await module?.close();
   });
 
@@ -121,7 +123,7 @@ describe('PasswordCredential (guarded real PostgreSQL)', () => {
           data: { id: randomUUID() },
         }),
       ),
-    ).toBe('P2003');
+    ).toBe('P2039'); // Immutable identifier CHECK precedes the restricted FK.
     expect(
       await prisma.passwordCredential.count({ where: { userId: person.id } }),
     ).toBe(1);

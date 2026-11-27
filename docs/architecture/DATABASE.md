@@ -1,5 +1,13 @@
 # Database infrastructure
 
+Task 2.6 supersedes the historical shared-credential configuration below. Runtime
+loads .env.runtime and uses hanoflow_runtime; Prisma CLI separately loads
+.env.migrations/DATABASE_MIGRATION_URL. Actual role/privilege checks protect startup,
+readiness and service transaction entry. All twelve models ENABLE/FORCE RLS; guarded
+test fixture access and migration/bootstrap tooling use separate credentials.
+See [current database security and operations](RLS.md) and the sanitized
+[actual catalog report](../development/TASK-2.6-VERIFICATION.json).
+
 ## Implemented boundary
 
 PostgreSQL 18 is the local persistence target. Prisma CLI, Client and PrismaPg adapter are on stable 7.10.1; the Prisma 8 release candidate is deliberately excluded. `prisma.config.ts` owns schema/migration locations and the CLI URL. It explicitly loads .env; absent DATABASE_URL does not block generation/validation, but database CLI operations need a URL. Runtime Nest configuration separately requires a valid PostgreSQL DATABASE_URL before creating the application.

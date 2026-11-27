@@ -42,7 +42,7 @@ describe('HTTP foundation', () => {
       .overrideProvider(RedisService)
       .useValue({ checkReadiness: redis })
       .overrideProvider(PrismaService)
-      .useValue({ $queryRaw: query })
+      .useValue({ verifyIdentity: () => Promise.resolve(), $queryRaw: query })
       .compile();
     app = module.createNestApplication({ logger: false });
     setupApplication(app);

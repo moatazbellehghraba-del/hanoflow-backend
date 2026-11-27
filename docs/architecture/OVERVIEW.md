@@ -1,5 +1,10 @@
 # Backend architecture
 
+Task 2.6 adds restricted PostgreSQL identities, separate credential-loading paths,
+transaction-local RLS and a separate provisioning context. The application remains
+one modular monolith with one restricted pool. See [RLS architecture](RLS.md) for
+current isolation boundaries superseding earlier planned-RLS descriptions below.
+
 ## Existing implementation - Tasks 1.1 through 2.5
 
 A single NestJS 12 process with Express transport and strict TypeScript/ESM. AppModule imports global validated ConfigModule, HealthModule and non-global QueuesModule, and registers a global HTTP exception filter. HealthModule owns GET /api/v1/health, returning only { "status": "ok" }, and GET /api/v1/health/ready, which queries PostgreSQL and Redis and returns 503 on either dependency failure. REST and GraphQL liveness remain dependency-free.

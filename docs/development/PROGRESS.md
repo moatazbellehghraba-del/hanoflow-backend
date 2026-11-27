@@ -1,15 +1,69 @@
 # Development progress
 
-Updated: 2026-11-26 (Africa/Lagos).
+## Task 2.6 complete — 2026-11-27
+
+Implemented approved five-role separation, scoped ignored credential files, actual
+runtime privilege verification, twelve-table ENABLE/FORCE RLS, explicit transaction
+contexts, immutable User/Tenant IDs, isolated fixture/bootstrap paths and fifth
+migration. Owner-approved early PUBLIC CONNECT revocation was verified before
+fixture creation; all other development changes followed full test acceptance.
+
+Final: 420 passing tests across 27 suites — 241 offline/20 suites/10.524s;
+168 real PostgreSQL/6 suites/19.704s; 11 real Redis/1 suite/60.041s. All original 388
+tests retain their intent. Six rolled-back actual-runtime table/column privilege
+fault cases and owner rejection passed; controlled bootstrap and three compiled
+healthy/outage/unsafe-identity cases passed. Compiled normal runtime is
+hanoflow_runtime, with privileged environment variables absent. Healthy REST/
+readiness/GraphQL200/200/200; unavailable database200/503/200; unsafe identity rejects
+startup. Actual same-PID context cleanup and simultaneous two-backend tenant
+isolation pass. Pool/timeouts and dependencies/overrides are unchanged.
+
+Both databases: five active migrations, no Prisma diff, twelve forced RLS tables;
+28 application/bootstrap policies, plus twelve fixture policies only in test.
+Original four migration files/checksums and all records preserved: Permission5,
+all other application tables0. The initial test-only fifth migration attempt rolled
+back before objects were created; exact helper schema provisioning and recorded
+Prisma rollback resolution avoided granting migrator database CREATE. Applied
+migrations were not rewritten. Details and recovery are documented in the report.
+
+Prisma format/validate/generate/status/diff, policy/role/grant/constraint inspection,
+typecheck, ESLint, Prettier, build, dependency tree and git diff checks passed.
+Three infrastructure services healthy, original ports/volumes preserved. CI updated
+but GitHub Actions was not run; production restrictions remain. No staging, commit,
+push, merge, deployment or Task2.7. Next: owner review and separate next-task approval.
+
+See [full report](TASK-2.6-REPORT.md), [actual catalog evidence](TASK-2.6-VERIFICATION.json)
+and [architecture/operations](../architecture/RLS.md).
+
+## Historical Task 2.6 implementation preflight — 2026-11-27 (resolved)
+
+Implementation was blocked on a security sequencing decision, not infrastructure.
+All mandatory infrastructure, database/schema/history/data/role checks passed;
+388 baseline tests passed across 26 suites (offline 46.216s, PostgreSQL 18.562s,
+Redis 82.847s), and dependency-tree consistency passed.
+Development currently grants CONNECT through PUBLIC. Enabling the approved fixture
+login before test acceptance would let it connect to development; revoking its
+individual CONNECT does not override PUBLIC. The approved sequence forbids changing
+development ACLs before acceptance. See
+[the focused review](../architecture/RLS-IMPLEMENTATION-REVIEW.md) for the exact
+recommended single-privilege ordering exception and alternate NOLOGIN staging path.
+No roles, credentials, privileges, environment files, source or migrations changed.
+The owner approved the exact early PUBLIC CONNECT revocation; both targets have
+subsequently received the fifth migration after restricted test acceptance.
+No Task 2.7, staging, commit, push, merge or deployment.
+
+Updated: 2026-11-27 (Africa/Lagos).
 
 ## Current phase
 
-Phase 2: identity, sessions, internal RBAC and trusted tenant context through Task 2.5.
+Phase 2: identity, sessions, internal RBAC, trusted tenant context and restricted-role RLS through Task 2.6.
 Not production-ready; existing deployment restrictions remain in force.
 
 ## Current task
 
-Task 2.5 complete: tenant RBAC, runtime-proven contexts, both-credential tenant transitions, transactional delegation/owner protections and reviewed fourth migration. All 388 tests passed across 26 suites. Production deployment remains blocked; Task 2.6 has not started.
+Task 2.6 complete locally and awaiting owner review. Task 2.5 guarantees and the
+388-test baseline are retained; 420 tests now pass across 27 suites.
+Production deployment remains blocked; Task 2.7 has not started.
 
 ## Completed tasks
 
@@ -25,7 +79,7 @@ Task 2.5 complete: tenant RBAC, runtime-proven contexts, both-credential tenant 
 
 ## Pending tasks
 
-- Owner review of Task 2.5 and separate authorization for Task 2.6 RLS. Public authentication flows/transports/guards, compromised-password screening, resource policies, onboarding, global lifecycle integration and RLS remain future work.
+- Owner review of Task 2.6; separate authorization for the next task. Public authentication flows/transports/guards, compromised-password screening, resource policies, onboarding and global lifecycle integration remain future work.
 - Resolve the existing GraphQL Tools production advisory through a reviewed compatible dependency change before deployment; retain all existing exposure restrictions.
 
 ## Technical decisions

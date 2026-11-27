@@ -16,7 +16,7 @@ export class SessionAuditWriter {
     tx: Prisma.TransactionClient,
     event: SessionAuditEvent,
   ): Promise<void> {
-    await tx.auditEvent.create({
+    await tx.auditEvent.createMany({
       data: {
         // A consumed token does not authenticate its presenter; record system
         // detection, not a fabricated human actor. Session target retains context.
@@ -34,7 +34,6 @@ export class SessionAuditWriter {
               ? { count: event.count }
               : undefined,
       },
-      select: { id: true },
     });
   }
 }

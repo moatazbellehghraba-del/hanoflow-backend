@@ -1,11 +1,12 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import './setup-database-env.js';
+import { createFixtureClient } from './helpers/database-fixture.js';
+import type { PrismaClient } from '../src/generated/prisma/client.js';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { ConfigService } from '@nestjs/config';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { DatabaseModule } from '../src/infrastructure/database/database.module.js';
-import { PrismaService } from '../src/infrastructure/database/prisma.service.js';
 import { Prisma } from '../src/generated/prisma/client.js';
 import {
   MembershipStatus,
@@ -18,7 +19,7 @@ const migrationName = '20261126190000_core_identity';
 
 describe('Core identity schema (guarded real PostgreSQL)', () => {
   let module: TestingModule | undefined;
-  let prisma: PrismaService;
+  let prisma: PrismaClient;
   const ids = {
     users: new Set<string>(),
     tenants: new Set<string>(),
@@ -33,7 +34,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       .useValue(new ConfigService({ DATABASE_URL: url }))
       .compile();
     await module.init();
-    prisma = module.get(PrismaService);
+    prisma = await createFixtureClient();
     const identity = await prisma.$queryRaw<Array<{ database: string }>>`
       SELECT current_database() AS database
     `;
@@ -55,6 +56,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
   });
 
   afterAll(async () => {
+    await prisma?.$disconnect();
     await module?.close();
   });
 
@@ -336,7 +338,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
         where: { id: person.id },
         data: { id: randomUUID() },
       }),
-    ).rejects.toMatchObject({ code: 'P2003' });
+    ).rejects.toMatchObject({ code: 'P2039' }); // Explicit identifier immutability.
   });
 
   it('persists tenant audit events, correlation and bounded metadata', async () => {
@@ -420,7 +422,7 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
   });
 
   it('records the exact reviewed migration checksum with no failed or pending rows', async () => {
-    const rows = await prisma.$queryRaw<
+    const history = await prisma.$queryRaw<
       Array<{
         migration_name: string;
         checksum: string;
@@ -430,7 +432,13 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
     >`
       SELECT migration_name, checksum, finished_at, rolled_back_at FROM "_prisma_migrations" ORDER BY migration_name
     `;
-    expect(rows).toHaveLength(4);
+    expect(
+      history.every(
+        (row) => row.finished_at !== null || row.rolled_back_at !== null,
+      ),
+    ).toBe(true);
+    const rows = history.filter((row) => row.rolled_back_at === null);
+    expect(rows).toHaveLength(5);
     expect(rows[0]).toMatchObject({
       migration_name: migrationName,
       checksum: createHash('sha256')
@@ -477,6 +485,18 @@ describe('Core identity schema (guarded real PostgreSQL)', () => {
       rolled_back_at: null,
     });
     expect(rows[3]?.finished_at).toBeInstanceOf(Date);
+    expect(rows[4]).toMatchObject({
+      migration_name: '20261127210000_restricted_runtime_rls',
+      checksum: createHash('sha256')
+        .update(
+          readFileSync(
+            'prisma/migrations/20261127210000_restricted_runtime_rls/migration.sql',
+          ),
+        )
+        .digest('hex'),
+      rolled_back_at: null,
+    });
+    expect(rows[4]?.finished_at).toBeInstanceOf(Date);
   });
 
   it('contains exactly the approved tables, checks, indexes and restricted foreign keys', async () => {

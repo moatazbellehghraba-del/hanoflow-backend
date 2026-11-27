@@ -1,5 +1,28 @@
 # Backend testing
 
+## Restricted PostgreSQL acceptance — Task 2.6
+
+Database tests load only .env.test-runtime. Normal application services use
+hanoflow_runtime; explicit fixture helpers separately parse .env.test-fixture and
+never provide their client to feature DI. Keep loopback/5434/exact hanoflow_test,
+distinct development/test and matching expected runtime-user safeguards. Actual
+identity/role/privilege checks supplement URL validation. Never export migration,
+fixture or administration secrets into the Nest process environment.
+
+After approved setup/migrations: `npm run build`, then
+`node scripts/database-acceptance.mjs`. This runs transactional actual-role privilege
+fault checks, controlled bootstrap checks, offline tests and every database suite.
+Only full success writes the guarded development acceptance marker. The standalone
+`npm run test:db` command still runs all real database tests without mocks/skips.
+`node scripts/runtime-smoke.mjs` checks compiled healthy/unavailable/wrong-identity
+startup, REST/GraphQL contracts and bounded application close on ephemeral ports.
+
+Keep the separate real Redis command and its instance/prefix/container guards.
+Never run jobs against development Redis. See [RLS setup/recovery](../architecture/RLS.md)
+and [sanitized actual database metadata](TASK-2.6-VERIFICATION.json). Earlier testing
+notes below record prior foundation behavior; the current runtime user guard uses
+DATABASE_RUNTIME_USER rather than the Compose administration username.
+
 Use Node 24 LTS and the locked npm dependencies. On this workstation activate
 the portable runtime through process-local PATH as documented in README.
 

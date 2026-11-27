@@ -85,6 +85,7 @@ async function createApp(environment: string): Promise<INestApplication> {
     })
     .overrideProvider(PrismaService)
     .useValue({
+      verifyIdentity: () => Promise.resolve(),
       $queryRaw: jest
         .fn<() => Promise<unknown>>()
         .mockResolvedValue([{ value: 1 }]),

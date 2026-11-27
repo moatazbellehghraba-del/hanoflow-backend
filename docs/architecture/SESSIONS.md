@@ -1,5 +1,11 @@
 # Session management foundation — Tasks 2.4 and 2.5
 
+Task 2.6 preserves these semantics under the restricted runtime role. Token lookup
+now establishes digest/session/user context in stages inside the same transaction,
+before any verified tenant binding. Both-token transitions and strict replay remain
+unchanged; audit inserts require no returned-row SELECT privilege. See [RLS](RLS.md)
+for the implemented policy/credential boundary superseding historical RLS deferrals.
+
 ## Implemented boundary and decisions
 
 PostgreSQL is authoritative for identity-only and tenant-bound opaque sessions. Non-global

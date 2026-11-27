@@ -3,6 +3,7 @@ interface DatabaseTargetEnvironment {
   TEST_DATABASE_URL?: string;
   POSTGRES_PORT?: string;
   POSTGRES_USER?: string;
+  DATABASE_RUNTIME_USER?: string;
 }
 
 // Run before creating any client: these tests are local/CI infrastructure tests,
@@ -31,8 +32,9 @@ export function getTestDatabaseUrl(env: DatabaseTargetEnvironment): string {
         !['127.0.0.1', 'localhost'].includes(url.hostname) ||
         url.port !== port ||
         !url.username ||
-        (env.POSTGRES_USER &&
-          decodeURIComponent(url.username) !== env.POSTGRES_USER)
+        ((env.DATABASE_RUNTIME_USER ?? env.POSTGRES_USER) &&
+          decodeURIComponent(url.username) !==
+            (env.DATABASE_RUNTIME_USER ?? env.POSTGRES_USER))
       )
         return fail();
     }

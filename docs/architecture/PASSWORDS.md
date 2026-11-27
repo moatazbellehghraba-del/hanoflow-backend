@@ -1,5 +1,10 @@
 # Password credential foundation — Task 2.3
 
+Task 2.6 denies all normal runtime PasswordCredential persistence access. These
+hashing services remain independent of persistence; guarded credential schema tests
+use the separate fixture capability. Future Auth/rehash persistence needs a reviewed
+narrow access path. See [RLS architecture](RLS.md).
+
 ## Implemented boundary
 
 PasswordCredential persistence and internal password primitives are implemented.

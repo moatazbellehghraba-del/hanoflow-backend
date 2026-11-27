@@ -26,6 +26,7 @@ export class RoleProvisioner {
     if (!uuid.test(tenantId) || !uuid.test(correlationId))
       throw new RoleProvisioningError();
     try {
+      await tx.$queryRaw`SELECT set_config('app.bootstrap_tenant_id',${tenantId},true)`;
       return await this.perform(tx, tenantId, correlationId);
     } catch {
       throw new RoleProvisioningError();

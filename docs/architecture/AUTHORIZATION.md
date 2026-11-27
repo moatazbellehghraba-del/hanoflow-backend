@@ -1,5 +1,12 @@
 # RBAC and trusted tenant context — Task 2.5
 
+Task 2.6 preserves this RBAC/owner model with restricted-role RLS. Authorization
+revalidates runtime WeakMap proof/current session state before transaction-local
+tenant binding; owner counting can see the complete eligible tenant owner set.
+Role provisioning is also exported through RoleProvisioningModule for the separate
+controlled CLI without an application database pool. See [RLS](RLS.md); earlier
+RLS deferral statements below are historical Task 2.5 boundaries.
+
 ## Implemented boundary
 
 AuthorizationModule is non-global and exports AuthorizationService and the
