@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma, Session } from '../../generated/prisma/client.js';
 import { PrismaService } from '../../infrastructure/database/prisma.service.js';
+import {
+  identityContext,
+  sessionContext,
+  sessionLookup,
+  tenantContext,
+} from '../../infrastructure/database/database-context.js';
 import { SessionAuditWriter } from '../audit/session-audit.writer.js';
 import { TenantAuditWriter } from '../audit/tenant-audit.writer.js';
 import { TokenSecrets } from './token-secrets.js';
@@ -57,6 +63,7 @@ export class SessionsService {
 
   private async transaction<T>(operation: (tx: Tx) => Promise<T>): Promise<T> {
     try {
+      await this.prisma.verifyIdentity();
       return await this.prisma.$transaction(
         async (tx) => {
           await tx.$executeRaw`SET LOCAL lock_timeout = '750ms'`;
@@ -71,6 +78,7 @@ export class SessionsService {
   }
 
   private async lockUser(tx: Tx, userId: string, read = false) {
+    await identityContext(tx, userId);
     const rows = read
       ? await tx.$queryRaw<
           Array<{ id: string; status: string; emailVerifiedAt: Date | null }>
@@ -124,6 +132,7 @@ export class SessionsService {
     now: Date,
     predecessorId?: string,
   ): Promise<IssuedSession> {
+    await sessionContext(tx, session.id);
     const times = activityTimes(
       now,
       session.absoluteExpiresAt,
@@ -174,6 +183,7 @@ export class SessionsService {
     )
       return { status: 'invalid' };
     return this.transaction(async (tx) => {
+      await sessionLookup(tx);
       const user = await this.lockUser(tx, identity.userId);
       if (!this.eligible(user)) return { status: 'invalid' };
       const now = await this.now(tx);
@@ -216,17 +226,23 @@ export class SessionsService {
   ): Promise<SessionValidation> {
     const digest = this.tokens.digest(raw, 'access');
     if (!digest) return { status: 'invalid' };
+    await sessionLookup(tx, digest);
     const token = await tx.accessToken.findUnique({
       where: { digest },
       select: {
         sessionId: true,
         contextVersion: true,
         expiresAt: true,
-        session: { select: { userId: true } },
       },
     });
     if (!token) return { status: 'invalid' };
-    const user = await this.lockUser(tx, token.session.userId, true);
+    await sessionContext(tx, token.sessionId);
+    const locatedSession = await tx.session.findUnique({
+      where: { id: token.sessionId },
+      select: { userId: true },
+    });
+    if (!locatedSession) return { status: 'invalid' };
+    const user = await this.lockUser(tx, locatedSession.userId, true);
     const session = await this.lockSession(tx, token.sessionId, true);
     const contextEligible = session
       ? await this.contextEligible(tx, session, tenantWrite)
@@ -257,16 +273,22 @@ export class SessionsService {
     const digest = this.tokens.digest(raw, 'refresh');
     if (!digest || !uuid.test(correlationId)) return { status: 'invalid' };
     return this.transaction(async (tx) => {
+      await sessionLookup(tx, digest);
       const located = await tx.refreshToken.findUnique({
         where: { digest },
         select: {
           id: true,
           sessionId: true,
-          session: { select: { userId: true } },
         },
       });
       if (!located) return { status: 'invalid' };
-      const user = await this.lockUser(tx, located.session.userId);
+      await sessionContext(tx, located.sessionId);
+      const locatedSession = await tx.session.findUnique({
+        where: { id: located.sessionId },
+        select: { userId: true },
+      });
+      if (!locatedSession) return { status: 'invalid' };
+      const user = await this.lockUser(tx, locatedSession.userId);
       const session = await this.lockSession(tx, located.sessionId);
       const contextEligible = session
         ? await this.contextEligible(tx, session)
@@ -368,21 +390,28 @@ export class SessionsService {
     )
       return { status: 'invalid' };
     return this.transaction(async (tx) => {
+      await sessionLookup(tx, accessDigest);
       const access = await tx.accessToken.findUnique({
         where: { digest: accessDigest },
         select: { sessionId: true, contextVersion: true, expiresAt: true },
       });
+      await sessionLookup(tx, refreshDigest);
       const refresh = await tx.refreshToken.findUnique({
         where: { digest: refreshDigest },
         select: {
           id: true,
           sessionId: true,
-          session: { select: { userId: true } },
         },
       });
       if (!access || !refresh || access.sessionId !== refresh.sessionId)
         return { status: 'invalid' };
-      const user = await this.lockUser(tx, refresh.session.userId);
+      await sessionContext(tx, refresh.sessionId);
+      const locatedSession = await tx.session.findUnique({
+        where: { id: refresh.sessionId },
+        select: { userId: true },
+      });
+      if (!locatedSession) return { status: 'invalid' };
+      const user = await this.lockUser(tx, locatedSession.userId);
       const session = await this.lockSession(tx, refresh.sessionId);
       if (!session) return { status: 'invalid' };
       for (const id of [
@@ -460,6 +489,7 @@ export class SessionsService {
         },
       });
       const issued = await this.issue(tx, selected, now, refresh.id);
+      await tenantContext(tx, tenantId, member.id);
       await this.tenantAudit.write(tx, {
         kind: 'context_selected',
         tenantId,
@@ -483,12 +513,14 @@ export class SessionsService {
     )
       return { status: 'invalid' };
     return this.transaction(async (tx) => {
+      await sessionLookup(tx);
       if (!(await this.lockUser(tx, identity.userId)))
         return { status: 'invalid' };
       const session = await this.lockSession(tx, sessionId);
       if (!session || session.userId !== identity.userId)
         return { status: 'invalid' };
       if (session.revokedAt) return { status: 'unchanged' };
+      await sessionContext(tx, session.id);
       await tx.session.update({
         where: { id: session.id },
         data: { revokedAt: await this.now(tx), revocationReason: 'EXPLICIT' },
@@ -511,6 +543,7 @@ export class SessionsService {
     if (!uuid.test(identity.userId) || !uuid.test(correlationId))
       return { status: 'invalid', count: 0 };
     return this.transaction(async (tx) => {
+      await sessionLookup(tx);
       if (!(await this.lockUser(tx, identity.userId)))
         return { status: 'invalid', count: 0 };
       await tx.$queryRaw`SELECT id FROM "Session" WHERE "userId"=${identity.userId}::uuid AND "revokedAt" IS NULL ORDER BY id FOR UPDATE`;

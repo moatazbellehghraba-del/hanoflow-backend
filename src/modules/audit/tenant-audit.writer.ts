@@ -19,7 +19,7 @@ type TenantEvent = {
 @Injectable()
 export class TenantAuditWriter {
   async write(tx: Prisma.TransactionClient, event: TenantEvent): Promise<void> {
-    await tx.auditEvent.create({
+    await tx.auditEvent.createMany({
       data: {
         scope: 'TENANT',
         tenantId: event.tenantId,
@@ -43,7 +43,6 @@ export class TenantAuditWriter {
                 ? { status: event.status }
                 : undefined,
       },
-      select: { id: true },
     });
   }
 }

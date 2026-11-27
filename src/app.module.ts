@@ -13,6 +13,7 @@ import { AuthorizationModule } from './modules/authorization/authorization.modul
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: '.env.runtime',
       isGlobal: true,
       cache: true,
       validate: validateEnvironment,

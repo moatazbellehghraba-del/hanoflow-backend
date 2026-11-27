@@ -14,7 +14,10 @@ describe('Session boundary offline', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({ imports: [SessionsModule] })
       .overrideProvider(PrismaService)
-      .useValue({ $transaction: transaction })
+      .useValue({
+        verifyIdentity: () => Promise.resolve(),
+        $transaction: transaction,
+      })
       .compile();
     sessions = module.get(SessionsService);
   });

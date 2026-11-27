@@ -1,5 +1,13 @@
 # HanoFlow backend
 
+Task 2.6 adds restricted PostgreSQL runtime credentials, transaction-local RLS on
+all twelve application models, immutable User/Tenant identifiers and separate
+migration/bootstrap/fixture access. Nest loads **.env.runtime**; the original .env
+is reserved for Compose/admin tooling. Follow the [current security setup and
+commands](docs/architecture/RLS.md) before starting an unprovisioned installation.
+Never run Nest using the administration or migration URL. Public authentication
+and production deployment remain unavailable.
+
 A standalone NestJS modular monolith for HanoLink's planned multi-tenant delivery management platform. The application foundation, PostgreSQL/Prisma infrastructure and hybrid GraphQL/REST API infrastructure are implemented. Redis connectivity/readiness and BullMQ queue/worker infrastructure are implemented without production queue or worker registration. Task 2.2 adds User, Tenant, Membership and minimum AuditEvent persistence only. Public authentication/authorization endpoints, onboarding workflows and business operations are not implemented. See [identity architecture](docs/architecture/IDENTITY.md).
 
 Task 2.3 adds PasswordCredential persistence and a non-global internal identity
@@ -36,6 +44,7 @@ Expected here: Node 24.22.3, npm 11.19.1 and C:\dev-tools\node24\node.exe. npm s
 npm ci
 cp .env.example .env
 docker compose up -d --wait postgres redis
+# Complete the guarded role/migration setup in docs/architecture/RLS.md first.
 npm run start:dev
 ```
 
@@ -75,7 +84,7 @@ The new project creates a separate empty volume; the original data remains intac
 
 ## Prisma and migration workflow
 
-`npm ci` generates the ignored ESM Prisma Client via postinstall. `prisma.config.ts` loads .env for CLI commands; database URLs live in configuration, not the schema. Runtime uses PrismaPg and Nest's ConfigService. The first meaningful migration is `20261126190000_core_identity`, with four approved identity tables and reviewed SQL-only invariants. There is no seed. Verify target, existing schema/data and migration history before deployment; test on guarded hanoflow_test first. See [migration and inspection instructions](docs/architecture/IDENTITY.md#migration-and-inspection). No migration runs at application startup.
+`npm ci` generates the ignored ESM Prisma Client via postinstall. `prisma.config.ts` loads .env.migrations (or HANOFLOW_MIGRATION_ENV) and uses DATABASE_MIGRATION_URL for CLI database operations. Runtime separately loads .env.runtime and uses PrismaPg/ConfigService. Five reviewed migrations preserve the identity, credential, session and RBAC foundations and add restricted-role RLS. Only the five system Permission rows are seeded. Verify targets, schema/data, role privileges and migration history before deployment; test on guarded hanoflow_test first. See [current migration/security instructions](docs/architecture/RLS.md). No migration runs at application startup.
 
 ```sh
 npm run db:validate

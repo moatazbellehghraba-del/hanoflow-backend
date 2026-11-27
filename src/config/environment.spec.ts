@@ -9,6 +9,16 @@ const database = {
 };
 
 describe('environment validation', () => {
+  it.each([
+    'DATABASE_MIGRATION_URL',
+    'TEST_DATABASE_MIGRATION_URL',
+    'TEST_DATABASE_FIXTURE_URL',
+    'POSTGRES_PASSWORD',
+  ])('rejects privileged credential injection through %s', (key) => {
+    expect(() =>
+      validateEnvironment({ ...database, [key]: 'synthetic-private-value' }),
+    ).toThrow('Privileged database credentials must not be loaded by runtime');
+  });
   it('provides safe development defaults', () => {
     expect(validateEnvironment(database)).toMatchObject({
       NODE_ENV: 'development',

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../../infrastructure/database/prisma.service.js';
+import { tenantContext } from '../../infrastructure/database/database-context.js';
 import { SessionsService } from '../sessions/sessions.service.js';
 import { TenantAuditWriter } from '../audit/tenant-audit.writer.js';
 import {
@@ -47,6 +48,7 @@ export class AuthorizationService {
   ) {}
   private async transaction<T>(work: (tx: Tx) => Promise<T>): Promise<T> {
     try {
+      await this.db.verifyIdentity();
       return await this.db.$transaction(
         async (tx) => {
           await tx.$executeRaw`SET LOCAL lock_timeout='750ms'`;
@@ -115,6 +117,7 @@ export class AuthorizationService {
       identity.contextVersion !== proof.context.contextVersion
     )
       throw new AuthorizationDenied();
+    await tenantContext(tx, proof.context.tenantId, proof.context.membershipId);
     return this.effective(
       tx,
       proof.context.membershipId,
@@ -135,6 +138,7 @@ export class AuthorizationService {
         !identity.membershipId
       )
         return undefined;
+      await tenantContext(tx, tenantId, identity.membershipId);
       const context = Object.freeze({
         userId: identity.userId,
         sessionId: identity.sessionId,

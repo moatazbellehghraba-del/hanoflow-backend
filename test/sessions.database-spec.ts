@@ -1,5 +1,7 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import './setup-database-env.js';
+import { createFixtureClient } from './helpers/database-fixture.js';
+import type { PrismaClient } from '../src/generated/prisma/client.js';
 import { jest } from '@jest/globals';
 import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
@@ -20,8 +22,8 @@ import { getTestDatabaseUrl } from './helpers/database-target.js';
 describe('Sessions and rotation (real PostgreSQL, independent app pools)', () => {
   let first: TestingModule;
   let second: TestingModule;
-  let db: PrismaService;
-  let otherDb: PrismaService;
+  let db: PrismaClient;
+  let otherDb: PrismaClient;
   let sessions: SessionsService;
   let other: SessionsService;
   let secrets: TokenSecrets;
@@ -46,8 +48,8 @@ describe('Sessions and rotation (real PostgreSQL, independent app pools)', () =>
     }
     first = await application();
     second = await application();
-    db = first.get(PrismaService);
-    otherDb = second.get(PrismaService);
+    db = await createFixtureClient();
+    otherDb = await createFixtureClient();
     sessions = first.get(SessionsService);
     other = second.get(SessionsService);
     secrets = first.get(TokenSecrets);
@@ -84,6 +86,8 @@ describe('Sessions and rotation (real PostgreSQL, independent app pools)', () =>
     correlations.clear();
   });
   afterAll(async () => {
+    await otherDb?.$disconnect();
+    await db?.$disconnect();
     await second?.close();
     await first?.close();
   });
@@ -185,9 +189,15 @@ describe('Sessions and rotation (real PostgreSQL, independent app pools)', () =>
   }
 
   it('uses distinct real PostgreSQL backend connections', async () => {
+    const firstRuntime = first.get(PrismaService);
+    const secondRuntime = second.get(PrismaService);
     const [a, b] = await Promise.all([
-      db.$queryRaw<Array<{ pid: number }>>`SELECT pg_backend_pid() AS pid`,
-      otherDb.$queryRaw<Array<{ pid: number }>>`SELECT pg_backend_pid() AS pid`,
+      firstRuntime.$queryRaw<
+        Array<{ pid: number }>
+      >`SELECT pg_backend_pid() AS pid`,
+      secondRuntime.$queryRaw<
+        Array<{ pid: number }>
+      >`SELECT pg_backend_pid() AS pid`,
     ]);
     expect(a[0]?.pid !== b[0]?.pid).toBe(true);
   });

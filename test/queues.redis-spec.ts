@@ -169,6 +169,7 @@ describe('isolated real Redis and BullMQ foundation (no Redis mocks)', () => {
         // PostgreSQL remains covered by its separate real four-test suite.
         .overrideProvider(PrismaService)
         .useValue({
+          verifyIdentity: () => Promise.resolve(),
           $queryRaw: jest
             .fn<() => Promise<unknown>>()
             .mockResolvedValue([{ value: 1 }]),

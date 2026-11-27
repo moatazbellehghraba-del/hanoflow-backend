@@ -1,5 +1,29 @@
 # HanoFlow backend instructions
 
+## Restricted database access — Task 2.6
+
+Nest loads only .env.runtime; never import dotenv/config or Compose .env into runtime
+code. Migration CLI loads .env.migrations or explicit HANOFLOW_MIGRATION_ENV and
+requires DATABASE_MIGRATION_URL, with no privileged fallback. Test runtime loads
+.env.test-runtime; only the explicit fixture helper/tool reads .env.test-fixture.
+Keep all real credentials ignored and out of logs/process environments that do not
+need them. Preserve the existing Compose/admin .env and administration password.
+
+All twelve application tables now ENABLE/FORCE RLS. Preserve the four original
+migrations and the applied fifth migration. Never alter applied SQL or disable RLS
+to make tests pass. Use the restricted PrismaService singleton, identity verification
+and same-transaction session/tenant context; do not construct feature clients or
+set authority from headers/DTOs. Keep explicit tenant predicates, RBAC proof/current
+checks, composite constraints and existing lock ordering/timeouts. User/Tenant IDs
+are immutable through SECURITY INVOKER triggers despite lock-enabling UPDATE(id).
+Do not add SECURITY DEFINER functions or broaden grants without separate approval.
+
+Schema/credential fixtures use the isolated test client; application services never
+receive it. Cleanup only run-owned IDs. Preserve privilege/policy/PID-reuse tests and
+all prior test intent. Bootstrap is a separate controlled process, not normal runtime
+authority. See docs/architecture/RLS.md for exact roles, policies, commands, recovery,
+fresh-target prerequisites and the custom-setting threat-model limitation.
+
 ## Project and scope
 
 HanoFlow is HanoLink's B2B multi-tenant delivery management SaaS. Its product name may change; keep branding in configuration and out of domain logic. This standalone repository contains the backend only. Update docs/development/PROGRESS.md after every task with changes, verification, decisions, issues, and the next task. Do not claim planned features are implemented.

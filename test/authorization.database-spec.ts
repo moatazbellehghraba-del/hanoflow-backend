@@ -1,5 +1,7 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import './setup-database-env.js';
+import { createFixtureClient } from './helpers/database-fixture.js';
+import type { PrismaClient } from '../src/generated/prisma/client.js';
 import { jest } from '@jest/globals';
 import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
@@ -29,8 +31,8 @@ import { getTestDatabaseUrl } from './helpers/database-target.js';
 describe('RBAC and trusted tenant context (guarded real PostgreSQL)', () => {
   let app: TestingModule;
   let otherApp: TestingModule;
-  let db: PrismaService;
-  let secondDb: PrismaService;
+  let db: PrismaClient;
+  let secondDb: PrismaClient;
   let auth: AuthorizationService;
   let otherAuth: AuthorizationService;
   let sessions: SessionsService;
@@ -58,8 +60,8 @@ describe('RBAC and trusted tenant context (guarded real PostgreSQL)', () => {
     }
     app = await application();
     otherApp = await application();
-    db = app.get(PrismaService);
-    secondDb = otherApp.get(PrismaService);
+    db = await createFixtureClient();
+    secondDb = await createFixtureClient();
     auth = app.get(AuthorizationService);
     otherAuth = otherApp.get(AuthorizationService);
     sessions = app.get(SessionsService);
@@ -103,6 +105,8 @@ describe('RBAC and trusted tenant context (guarded real PostgreSQL)', () => {
     correlations.clear();
   });
   afterAll(async () => {
+    await secondDb?.$disconnect();
+    await db?.$disconnect();
     await otherApp?.close();
     await app?.close();
   });
@@ -218,9 +222,13 @@ describe('RBAC and trusted tenant context (guarded real PostgreSQL)', () => {
   }
 
   it('uses independent actual PostgreSQL backend connections', async () => {
+    const firstRuntime = app.get(PrismaService);
+    const secondRuntime = otherApp.get(PrismaService);
     const [a, b] = await Promise.all([
-      db.$queryRaw<Array<{ pid: number }>>`SELECT pg_backend_pid() AS pid`,
-      secondDb.$queryRaw<
+      firstRuntime.$queryRaw<
+        Array<{ pid: number }>
+      >`SELECT pg_backend_pid() AS pid`,
+      secondRuntime.$queryRaw<
         Array<{ pid: number }>
       >`SELECT pg_backend_pid() AS pid`,
     ]);

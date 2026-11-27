@@ -1,0 +1,3380 @@
+{
+  "generatedAt": "2026-11-27T20:46:39.879Z",
+  "databases": [
+    {
+      "database": "hanoflow",
+      "roles": [
+        {
+          "rolname": "hanoflow",
+          "rolsuper": true,
+          "rolbypassrls": true,
+          "rolcanlogin": true,
+          "rolinherit": true,
+          "rolcreatedb": true,
+          "rolcreaterole": true,
+          "rolreplication": true
+        },
+        {
+          "rolname": "hanoflow_bootstrap",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        },
+        {
+          "rolname": "hanoflow_migrator",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        },
+        {
+          "rolname": "hanoflow_runtime",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        },
+        {
+          "rolname": "hanoflow_test_fixture",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        }
+      ],
+      "memberships": [
+        {
+          "role": "hanoflow_bootstrap",
+          "member": "hanoflow_migrator",
+          "admin_option": false,
+          "inherit_option": false,
+          "set_option": true
+        }
+      ],
+      "databaseAcl": [
+        {
+          "owner": "hanoflow",
+          "datacl": "{hanoflow=CTc/hanoflow,hanoflow_runtime=c/hanoflow,hanoflow_migrator=c/hanoflow}"
+        }
+      ],
+      "tables": [
+        {
+          "relname": "AccessToken",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "AuditEvent",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=a/hanoflow_migrator,hanoflow_bootstrap=a/hanoflow_migrator}"
+        },
+        {
+          "relname": "Membership",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator}"
+        },
+        {
+          "relname": "MembershipRole",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "PasswordCredential",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": null
+        },
+        {
+          "relname": "Permission",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=r/hanoflow_migrator}"
+        },
+        {
+          "relname": "RefreshToken",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "Role",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "RolePermission",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "Session",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "Tenant",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=r/hanoflow_migrator}"
+        },
+        {
+          "relname": "User",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": null
+        },
+        {
+          "relname": "_prisma_migrations",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "relacl": null
+        }
+      ],
+      "policies": [
+        {
+          "tablename": "AccessToken",
+          "policyname": "access_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"sessionId\" = hf_security.context_uuid('app.session_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Session\" s\n  WHERE ((s.id = \"AccessToken\".\"sessionId\") AND (s.\"userId\" = hf_security.context_uuid('app.user_id'::text)) AND (s.\"contextVersion\" = \"AccessToken\".\"contextVersion\")))))"
+        },
+        {
+          "tablename": "AccessToken",
+          "policyname": "access_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((digest = hf_security.lookup_digest()) OR (\"sessionId\" = hf_security.context_uuid('app.session_id'::text)))",
+          "with_check": null
+        },
+        {
+          "tablename": "AuditEvent",
+          "policyname": "audit_bootstrap_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "(((scope)::text = 'TENANT'::text) AND (\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text)) AND (\"actorUserId\" IS NULL) AND ((action)::text = 'tenant.roles_provisioned'::text) AND ((\"targetType\")::text = 'Tenant'::text) AND ((\"targetId\")::text = (\"tenantId\")::text) AND ((outcome)::text = 'SUCCESS'::text) AND (EXISTS ( SELECT 1\n   FROM \"Tenant\" t\n  WHERE ((t.id = \"AuditEvent\".\"tenantId\") AND ((t.status)::text = 'PENDING'::text)))))"
+        },
+        {
+          "tablename": "AuditEvent",
+          "policyname": "audit_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((((scope)::text = 'TENANT'::text) AND (\"tenantId\" = hf_security.tenant()) AND (\"actorUserId\" = hf_security.context_uuid('app.user_id'::text)) AND ((action)::text = ANY ((ARRAY['tenant.role_assigned'::character varying, 'tenant.role_removed'::character varying, 'tenant.membership_status_changed'::character varying, 'tenant.context_selected'::character varying])::text[])) AND ((outcome)::text = 'SUCCESS'::text)) OR (((scope)::text = 'PLATFORM'::text) AND (\"tenantId\" IS NULL) AND (current_setting('app.access_path'::text, true) = 'session'::text) AND ((((action)::text = ANY ((ARRAY['session.established'::character varying, 'session.rotated'::character varying, 'session.revoked'::character varying])::text[])) AND (\"actorUserId\" = hf_security.context_uuid('app.user_id'::text)) AND ((\"targetType\")::text = 'Session'::text) AND ((\"targetId\")::text = (hf_security.context_uuid('app.session_id'::text))::text) AND ((outcome)::text = 'SUCCESS'::text)) OR (((action)::text = 'session.revoked_all'::text) AND (\"actorUserId\" = hf_security.context_uuid('app.user_id'::text)) AND ((\"targetType\")::text = 'User'::text) AND ((\"targetId\")::text = (hf_security.context_uuid('app.user_id'::text))::text) AND ((outcome)::text = 'SUCCESS'::text)) OR (((action)::text = 'session.refresh_replay'::text) AND (\"actorUserId\" IS NULL) AND ((\"targetType\")::text = 'Session'::text) AND ((\"targetId\")::text = (hf_security.context_uuid('app.session_id'::text))::text) AND ((outcome)::text = 'DENIED'::text)))))"
+        },
+        {
+          "tablename": "Membership",
+          "policyname": "membership_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((\"tenantId\" = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (\"userId\" = hf_security.context_uuid('app.user_id'::text))))",
+          "with_check": null
+        },
+        {
+          "tablename": "Membership",
+          "policyname": "membership_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "((\"tenantId\" = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (\"userId\" = hf_security.context_uuid('app.user_id'::text))))",
+          "with_check": "(\"tenantId\" = hf_security.tenant())"
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "membership_role_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"tenantId\" = hf_security.tenant()) AND (\"grantedByUserId\" = hf_security.context_uuid('app.user_id'::text)) AND (\"removedAt\" IS NULL) AND (\"removedByUserId\" IS NULL))"
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "membership_role_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.tenant())",
+          "with_check": null
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "membership_role_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "((\"tenantId\" = hf_security.tenant()) AND (\"removedAt\" IS NULL))",
+          "with_check": "((\"tenantId\" = hf_security.tenant()) AND (\"removedByUserId\" = hf_security.context_uuid('app.user_id'::text)) AND (\"removedAt\" IS NOT NULL))"
+        },
+        {
+          "tablename": "Permission",
+          "policyname": "permission_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap,hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(((scope)::text = 'TENANT'::text) AND ((code)::text = ANY ((ARRAY['tenant.memberships.read'::character varying, 'tenant.memberships.manage'::character varying, 'tenant.roles.read'::character varying, 'tenant.roles.assign'::character varying, 'tenant.ownership.manage'::character varying])::text[])))",
+          "with_check": null
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "refresh_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"sessionId\" = hf_security.context_uuid('app.session_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Session\" s\n  WHERE ((s.id = \"RefreshToken\".\"sessionId\") AND (s.\"userId\" = hf_security.context_uuid('app.user_id'::text)) AND (s.\"contextVersion\" = \"RefreshToken\".\"contextVersion\")))))"
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "refresh_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((digest = hf_security.lookup_digest()) OR (\"sessionId\" = hf_security.context_uuid('app.session_id'::text)))",
+          "with_check": null
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "refresh_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "(\"sessionId\" = hf_security.context_uuid('app.session_id'::text))",
+          "with_check": "(\"sessionId\" = hf_security.context_uuid('app.session_id'::text))"
+        },
+        {
+          "tablename": "Role",
+          "policyname": "role_bootstrap_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Tenant\" t\n  WHERE ((t.id = \"Role\".\"tenantId\") AND ((t.status)::text = 'PENDING'::text)))))"
+        },
+        {
+          "tablename": "Role",
+          "policyname": "role_bootstrap_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": null
+        },
+        {
+          "tablename": "Role",
+          "policyname": "role_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.tenant())",
+          "with_check": null
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "role_permission_bootstrap_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Tenant\" t\n  WHERE ((t.id = \"RolePermission\".\"tenantId\") AND ((t.status)::text = 'PENDING'::text)))))"
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "role_permission_bootstrap_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": null
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "role_permission_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.tenant())",
+          "with_check": null
+        },
+        {
+          "tablename": "Session",
+          "policyname": "session_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"userId\" = hf_security.context_uuid('app.user_id'::text)) AND ((scope)::text = 'IDENTITY'::text) AND (\"tenantId\" IS NULL) AND (\"membershipId\" IS NULL))"
+        },
+        {
+          "tablename": "Session",
+          "policyname": "session_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((id = hf_security.context_uuid('app.session_id'::text)) OR (\"userId\" = hf_security.context_uuid('app.user_id'::text)))",
+          "with_check": null
+        },
+        {
+          "tablename": "Session",
+          "policyname": "session_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "(\"userId\" = hf_security.context_uuid('app.user_id'::text))",
+          "with_check": "(\"userId\" = hf_security.context_uuid('app.user_id'::text))"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_bootstrap_lock",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "UPDATE",
+          "qual": "(id = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": "(id = hf_security.context_uuid('app.bootstrap_tenant_id'::text))"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_bootstrap_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "SELECT",
+          "qual": "(id = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": null
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_runtime_lock",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "((id = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"tenantId\" = \"Tenant\".id) AND (m.\"userId\" = hf_security.context_uuid('app.user_id'::text)))))))",
+          "with_check": "((id = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"tenantId\" = \"Tenant\".id) AND (m.\"userId\" = hf_security.context_uuid('app.user_id'::text)))))))"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((id = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"tenantId\" = \"Tenant\".id) AND (m.\"userId\" = hf_security.context_uuid('app.user_id'::text)))))))",
+          "with_check": null
+        },
+        {
+          "tablename": "User",
+          "policyname": "user_runtime_lock",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "(id = hf_security.context_uuid('app.user_id'::text))",
+          "with_check": "(id = hf_security.context_uuid('app.user_id'::text))"
+        },
+        {
+          "tablename": "User",
+          "policyname": "user_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((id = hf_security.context_uuid('app.user_id'::text)) OR (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"userId\" = \"User\".id) AND (m.\"tenantId\" = hf_security.tenant())))))",
+          "with_check": null
+        }
+      ],
+      "grants": [
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "AuditEvent",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Permission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Role",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Role",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "RolePermission",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "RolePermission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Tenant",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "privilege_type": "SELECT"
+        }
+      ],
+      "columnGrants": [
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "contextVersion",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "contextVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "digest",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "digest",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "expiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "expiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "sessionId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "sessionId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "action",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "actorUserId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "correlationId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "metadata",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "outcome",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "scope",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "targetId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "targetType",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "tenantId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "joinedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "removedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "removedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "status",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "updatedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "updatedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "userId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedByUserId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedByUserId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "membershipId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "membershipId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedByUserId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedByUserId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedByUserId",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "roleId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "roleId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "tenantId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "column_name": "code",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "column_name": "description",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "column_name": "scope",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "consumedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "consumedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "consumedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "contextVersion",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "contextVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "digest",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "digest",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "expiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "expiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "predecessorId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "predecessorId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "sessionId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "sessionId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "code",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "name",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "templateVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "updatedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "permissionCode",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "roleId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "scope",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "absoluteExpiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "absoluteExpiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "client",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "client",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "contextVersion",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "contextVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "contextVersion",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "idleExpiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "idleExpiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "idleExpiresAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "lastActivityAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "lastActivityAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "lastActivityAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "membershipId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "membershipId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "membershipId",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revocationReason",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revocationReason",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revocationReason",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revokedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revokedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revokedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "scope",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "scope",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "scope",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "tenantId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "tenantId",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "userId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "userId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "id",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "name",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "slug",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "updatedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "emailVerifiedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "id",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        }
+      ],
+      "fixtureDevelopmentConnect": false,
+      "schemas": [
+        {
+          "nspname": "hf_security",
+          "owner": "hanoflow_migrator",
+          "nspacl": "{hanoflow_migrator=UC/hanoflow_migrator,hanoflow_runtime=U/hanoflow_migrator,hanoflow_bootstrap=U/hanoflow_migrator}"
+        },
+        {
+          "nspname": "public",
+          "owner": "hanoflow_migrator",
+          "nspacl": "{hanoflow_migrator=UC/hanoflow_migrator,hanoflow_runtime=U/hanoflow_migrator,hanoflow_bootstrap=U/hanoflow_migrator}"
+        }
+      ],
+      "functions": [
+        {
+          "proname": "context_uuid",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        },
+        {
+          "proname": "immutable_id",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        },
+        {
+          "proname": "lookup_digest",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        },
+        {
+          "proname": "tenant",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        }
+      ],
+      "triggers": [
+        {
+          "tgname": "tenant_immutable_id",
+          "definition": "CREATE TRIGGER tenant_immutable_id BEFORE UPDATE OF id ON public.\"Tenant\" FOR EACH ROW EXECUTE FUNCTION hf_security.immutable_id()"
+        },
+        {
+          "tgname": "user_immutable_id",
+          "definition": "CREATE TRIGGER user_immutable_id BEFORE UPDATE OF id ON public.\"User\" FOR EACH ROW EXECUTE FUNCTION hf_security.immutable_id()"
+        }
+      ],
+      "constraints": [
+        {
+          "conname": "AccessToken_context_check",
+          "definition": "CHECK ((\"contextVersion\" > 0))"
+        },
+        {
+          "conname": "AccessToken_digest_check",
+          "definition": "CHECK ((octet_length(digest) = 32))"
+        },
+        {
+          "conname": "AccessToken_time_check",
+          "definition": "CHECK ((\"createdAt\" < \"expiresAt\"))"
+        },
+        {
+          "conname": "AuditEvent_identifiers_check",
+          "definition": "CHECK (((btrim((action)::text, ' \t\n\r\f\u000b'::text) <> ''::text) AND (btrim((\"targetType\")::text, ' \t\n\r\f\u000b'::text) <> ''::text) AND ((\"targetId\" IS NULL) OR (btrim((\"targetId\")::text, ' \t\n\r\f\u000b'::text) <> ''::text))))"
+        },
+        {
+          "conname": "AuditEvent_metadata_check",
+          "definition": "CHECK (((metadata IS NULL) OR ((jsonb_typeof(metadata) = 'object'::text) AND (octet_length((metadata)::text) <= 4096))))"
+        },
+        {
+          "conname": "AuditEvent_scope_check",
+          "definition": "CHECK (((scope = 'TENANT'::\"AuditScope\") = (\"tenantId\" IS NOT NULL)))"
+        },
+        {
+          "conname": "MembershipRole_removal_check",
+          "definition": "CHECK ((((\"removedAt\" IS NULL) = (\"removedByUserId\" IS NULL)) AND ((\"removedAt\" IS NULL) OR (\"removedAt\" >= \"grantedAt\"))))"
+        },
+        {
+          "conname": "Membership_removal_chronology_check",
+          "definition": "CHECK (((\"removedAt\" IS NULL) OR (\"removedAt\" >= \"joinedAt\")))"
+        },
+        {
+          "conname": "Membership_removedAt_check",
+          "definition": "CHECK (((status = 'REMOVED'::\"MembershipStatus\") = (\"removedAt\" IS NOT NULL)))"
+        },
+        {
+          "conname": "PasswordCredential_hash_check",
+          "definition": "CHECK ((btrim((\"passwordHash\")::text) <> ''::text))"
+        },
+        {
+          "conname": "Permission_catalog_check",
+          "definition": "CHECK (((scope = 'TENANT'::\"PermissionScope\") AND ((code)::text = ANY ((ARRAY['tenant.memberships.read'::character varying, 'tenant.memberships.manage'::character varying, 'tenant.roles.read'::character varying, 'tenant.roles.assign'::character varying, 'tenant.ownership.manage'::character varying])::text[]))))"
+        },
+        {
+          "conname": "RefreshToken_consumption_check",
+          "definition": "CHECK (((\"consumedAt\" IS NULL) OR ((\"consumedAt\" >= \"createdAt\") AND (\"consumedAt\" < \"expiresAt\"))))"
+        },
+        {
+          "conname": "RefreshToken_context_check",
+          "definition": "CHECK ((\"contextVersion\" > 0))"
+        },
+        {
+          "conname": "RefreshToken_digest_check",
+          "definition": "CHECK ((octet_length(digest) = 32))"
+        },
+        {
+          "conname": "RefreshToken_lineage_check",
+          "definition": "CHECK (((\"predecessorId\" IS NULL) OR (\"predecessorId\" <> id)))"
+        },
+        {
+          "conname": "RefreshToken_time_check",
+          "definition": "CHECK ((\"createdAt\" < \"expiresAt\"))"
+        },
+        {
+          "conname": "RolePermission_scope_check",
+          "definition": "CHECK ((scope = 'TENANT'::\"PermissionScope\"))"
+        },
+        {
+          "conname": "Role_owner_active_check",
+          "definition": "CHECK (((code <> 'OWNER'::\"RoleTemplate\") OR (status = 'ACTIVE'::\"RoleStatus\")))"
+        },
+        {
+          "conname": "Role_template_check",
+          "definition": "CHECK (((\"templateVersion\" = 1) AND (btrim((name)::text) <> ''::text)))"
+        },
+        {
+          "conname": "Session_context_check",
+          "definition": "CHECK ((\"contextVersion\" > 0))"
+        },
+        {
+          "conname": "Session_revocation_check",
+          "definition": "CHECK ((((\"revokedAt\" IS NULL) = (\"revocationReason\" IS NULL)) AND ((\"revokedAt\" IS NULL) OR (\"revokedAt\" >= \"createdAt\"))))"
+        },
+        {
+          "conname": "Session_tenant_context_check",
+          "definition": "CHECK (((((scope)::text = 'IDENTITY'::text) AND (\"tenantId\" IS NULL) AND (\"membershipId\" IS NULL)) OR (((scope)::text = 'TENANT'::text) AND (\"tenantId\" IS NOT NULL) AND (\"membershipId\" IS NOT NULL))))"
+        },
+        {
+          "conname": "Session_time_check",
+          "definition": "CHECK (((\"createdAt\" <= \"lastActivityAt\") AND (\"lastActivityAt\" < \"idleExpiresAt\") AND (\"idleExpiresAt\" <= \"absoluteExpiresAt\")))"
+        },
+        {
+          "conname": "Tenant_name_check",
+          "definition": "CHECK ((btrim((name)::text, ' \t\n\r\f\u000b'::text) <> ''::text))"
+        },
+        {
+          "conname": "Tenant_slug_check",
+          "definition": "CHECK ((((slug)::text COLLATE \"C\") ~ '^[a-z0-9]+(-[a-z0-9]+)*$'::text))"
+        },
+        {
+          "conname": "User_canonicalEmail_check",
+          "definition": "CHECK ((((\"canonicalEmail\")::text <> ''::text) AND ((\"canonicalEmail\")::text = (lower((btrim((email)::text, ' \t\n\r\f\u000b'::text) COLLATE pg_unicode_fast)) COLLATE \"C\"))))"
+        }
+      ],
+      "defaultPrivileges": [
+        {
+          "role": "hanoflow_migrator",
+          "nspname": null,
+          "defaclobjtype": "f",
+          "defaclacl": "{hanoflow_migrator=X/hanoflow_migrator}"
+        }
+      ],
+      "migrations": [
+        {
+          "migration_name": "20261126190000_core_identity",
+          "checksum": "2c83680416255de3c430b30238525fc9b02b4dfedf96006e245cec3ccfb93bda",
+          "finished_at": "2026-11-26T18:15:05.009Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261126200000_password_credential",
+          "checksum": "e431694c00462c397cb225ea0f585b67e1ff751e0c551ad6f6facc40b32e4c9c",
+          "finished_at": "2026-11-26T18:39:46.137Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261126210000_sessions_and_tokens",
+          "checksum": "e28edb10b7357897b13b13fff79af431cc3fb899d28a7d39551c89b54968a233",
+          "finished_at": "2026-11-26T20:27:08.270Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261126220000_rbac_tenant_context",
+          "checksum": "e05e79a1ebda21adffce1e489fa2e5a1ec0f58c10f60647725c93be0283a72bc",
+          "finished_at": "2026-11-26T21:54:32.174Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261127210000_restricted_runtime_rls",
+          "checksum": "1c460691b820a43917dc61777b39b0e187830e4e1308cae9d6bdcc75de6ea220",
+          "finished_at": "2026-11-27T20:33:57.639Z",
+          "rolled_back_at": null
+        }
+      ],
+      "counts": {
+        "AccessToken": 0,
+        "AuditEvent": 0,
+        "Membership": 0,
+        "MembershipRole": 0,
+        "PasswordCredential": 0,
+        "Permission": 5,
+        "RefreshToken": 0,
+        "Role": 0,
+        "RolePermission": 0,
+        "Session": 0,
+        "Tenant": 0,
+        "User": 0
+      }
+    },
+    {
+      "database": "hanoflow_test",
+      "roles": [
+        {
+          "rolname": "hanoflow",
+          "rolsuper": true,
+          "rolbypassrls": true,
+          "rolcanlogin": true,
+          "rolinherit": true,
+          "rolcreatedb": true,
+          "rolcreaterole": true,
+          "rolreplication": true
+        },
+        {
+          "rolname": "hanoflow_bootstrap",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        },
+        {
+          "rolname": "hanoflow_migrator",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        },
+        {
+          "rolname": "hanoflow_runtime",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        },
+        {
+          "rolname": "hanoflow_test_fixture",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false
+        }
+      ],
+      "memberships": [
+        {
+          "role": "hanoflow_bootstrap",
+          "member": "hanoflow_migrator",
+          "admin_option": false,
+          "inherit_option": false,
+          "set_option": true
+        }
+      ],
+      "databaseAcl": [
+        {
+          "owner": "hanoflow",
+          "datacl": "{hanoflow=CTc/hanoflow,hanoflow_runtime=c/hanoflow,hanoflow_migrator=c/hanoflow,hanoflow_test_fixture=c/hanoflow}"
+        }
+      ],
+      "tables": [
+        {
+          "relname": "AccessToken",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "AuditEvent",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=a/hanoflow_migrator,hanoflow_bootstrap=a/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "Membership",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "MembershipRole",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "PasswordCredential",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "Permission",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=r/hanoflow_migrator,hanoflow_test_fixture=ar/hanoflow_migrator}"
+        },
+        {
+          "relname": "RefreshToken",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "Role",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=ar/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "RolePermission",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=ar/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "Session",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=ar/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "Tenant",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_runtime=r/hanoflow_migrator,hanoflow_bootstrap=r/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "User",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_test_fixture=arwd/hanoflow_migrator}"
+        },
+        {
+          "relname": "_prisma_migrations",
+          "owner": "hanoflow_migrator",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "relacl": "{hanoflow_migrator=arwdDxtm/hanoflow_migrator,hanoflow_test_fixture=r/hanoflow_migrator}"
+        }
+      ],
+      "policies": [
+        {
+          "tablename": "AccessToken",
+          "policyname": "access_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"sessionId\" = hf_security.context_uuid('app.session_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Session\" s\n  WHERE ((s.id = \"AccessToken\".\"sessionId\") AND (s.\"userId\" = hf_security.context_uuid('app.user_id'::text)) AND (s.\"contextVersion\" = \"AccessToken\".\"contextVersion\")))))"
+        },
+        {
+          "tablename": "AccessToken",
+          "policyname": "access_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((digest = hf_security.lookup_digest()) OR (\"sessionId\" = hf_security.context_uuid('app.session_id'::text)))",
+          "with_check": null
+        },
+        {
+          "tablename": "AccessToken",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "AuditEvent",
+          "policyname": "audit_bootstrap_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "(((scope)::text = 'TENANT'::text) AND (\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text)) AND (\"actorUserId\" IS NULL) AND ((action)::text = 'tenant.roles_provisioned'::text) AND ((\"targetType\")::text = 'Tenant'::text) AND ((\"targetId\")::text = (\"tenantId\")::text) AND ((outcome)::text = 'SUCCESS'::text) AND (EXISTS ( SELECT 1\n   FROM \"Tenant\" t\n  WHERE ((t.id = \"AuditEvent\".\"tenantId\") AND ((t.status)::text = 'PENDING'::text)))))"
+        },
+        {
+          "tablename": "AuditEvent",
+          "policyname": "audit_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((((scope)::text = 'TENANT'::text) AND (\"tenantId\" = hf_security.tenant()) AND (\"actorUserId\" = hf_security.context_uuid('app.user_id'::text)) AND ((action)::text = ANY ((ARRAY['tenant.role_assigned'::character varying, 'tenant.role_removed'::character varying, 'tenant.membership_status_changed'::character varying, 'tenant.context_selected'::character varying])::text[])) AND ((outcome)::text = 'SUCCESS'::text)) OR (((scope)::text = 'PLATFORM'::text) AND (\"tenantId\" IS NULL) AND (current_setting('app.access_path'::text, true) = 'session'::text) AND ((((action)::text = ANY ((ARRAY['session.established'::character varying, 'session.rotated'::character varying, 'session.revoked'::character varying])::text[])) AND (\"actorUserId\" = hf_security.context_uuid('app.user_id'::text)) AND ((\"targetType\")::text = 'Session'::text) AND ((\"targetId\")::text = (hf_security.context_uuid('app.session_id'::text))::text) AND ((outcome)::text = 'SUCCESS'::text)) OR (((action)::text = 'session.revoked_all'::text) AND (\"actorUserId\" = hf_security.context_uuid('app.user_id'::text)) AND ((\"targetType\")::text = 'User'::text) AND ((\"targetId\")::text = (hf_security.context_uuid('app.user_id'::text))::text) AND ((outcome)::text = 'SUCCESS'::text)) OR (((action)::text = 'session.refresh_replay'::text) AND (\"actorUserId\" IS NULL) AND ((\"targetType\")::text = 'Session'::text) AND ((\"targetId\")::text = (hf_security.context_uuid('app.session_id'::text))::text) AND ((outcome)::text = 'DENIED'::text)))))"
+        },
+        {
+          "tablename": "AuditEvent",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Membership",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Membership",
+          "policyname": "membership_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((\"tenantId\" = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (\"userId\" = hf_security.context_uuid('app.user_id'::text))))",
+          "with_check": null
+        },
+        {
+          "tablename": "Membership",
+          "policyname": "membership_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "((\"tenantId\" = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (\"userId\" = hf_security.context_uuid('app.user_id'::text))))",
+          "with_check": "(\"tenantId\" = hf_security.tenant())"
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "membership_role_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"tenantId\" = hf_security.tenant()) AND (\"grantedByUserId\" = hf_security.context_uuid('app.user_id'::text)) AND (\"removedAt\" IS NULL) AND (\"removedByUserId\" IS NULL))"
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "membership_role_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.tenant())",
+          "with_check": null
+        },
+        {
+          "tablename": "MembershipRole",
+          "policyname": "membership_role_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "((\"tenantId\" = hf_security.tenant()) AND (\"removedAt\" IS NULL))",
+          "with_check": "((\"tenantId\" = hf_security.tenant()) AND (\"removedByUserId\" = hf_security.context_uuid('app.user_id'::text)) AND (\"removedAt\" IS NOT NULL))"
+        },
+        {
+          "tablename": "PasswordCredential",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Permission",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Permission",
+          "policyname": "permission_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap,hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(((scope)::text = 'TENANT'::text) AND ((code)::text = ANY ((ARRAY['tenant.memberships.read'::character varying, 'tenant.memberships.manage'::character varying, 'tenant.roles.read'::character varying, 'tenant.roles.assign'::character varying, 'tenant.ownership.manage'::character varying])::text[])))",
+          "with_check": null
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "refresh_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"sessionId\" = hf_security.context_uuid('app.session_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Session\" s\n  WHERE ((s.id = \"RefreshToken\".\"sessionId\") AND (s.\"userId\" = hf_security.context_uuid('app.user_id'::text)) AND (s.\"contextVersion\" = \"RefreshToken\".\"contextVersion\")))))"
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "refresh_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((digest = hf_security.lookup_digest()) OR (\"sessionId\" = hf_security.context_uuid('app.session_id'::text)))",
+          "with_check": null
+        },
+        {
+          "tablename": "RefreshToken",
+          "policyname": "refresh_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "(\"sessionId\" = hf_security.context_uuid('app.session_id'::text))",
+          "with_check": "(\"sessionId\" = hf_security.context_uuid('app.session_id'::text))"
+        },
+        {
+          "tablename": "Role",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Role",
+          "policyname": "role_bootstrap_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Tenant\" t\n  WHERE ((t.id = \"Role\".\"tenantId\") AND ((t.status)::text = 'PENDING'::text)))))"
+        },
+        {
+          "tablename": "Role",
+          "policyname": "role_bootstrap_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": null
+        },
+        {
+          "tablename": "Role",
+          "policyname": "role_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.tenant())",
+          "with_check": null
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "role_permission_bootstrap_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text)) AND (EXISTS ( SELECT 1\n   FROM \"Tenant\" t\n  WHERE ((t.id = \"RolePermission\".\"tenantId\") AND ((t.status)::text = 'PENDING'::text)))))"
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "role_permission_bootstrap_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": null
+        },
+        {
+          "tablename": "RolePermission",
+          "policyname": "role_permission_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "(\"tenantId\" = hf_security.tenant())",
+          "with_check": null
+        },
+        {
+          "tablename": "Session",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Session",
+          "policyname": "session_runtime_insert",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((\"userId\" = hf_security.context_uuid('app.user_id'::text)) AND ((scope)::text = 'IDENTITY'::text) AND (\"tenantId\" IS NULL) AND (\"membershipId\" IS NULL))"
+        },
+        {
+          "tablename": "Session",
+          "policyname": "session_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((id = hf_security.context_uuid('app.session_id'::text)) OR (\"userId\" = hf_security.context_uuid('app.user_id'::text)))",
+          "with_check": null
+        },
+        {
+          "tablename": "Session",
+          "policyname": "session_runtime_update",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "(\"userId\" = hf_security.context_uuid('app.user_id'::text))",
+          "with_check": "(\"userId\" = hf_security.context_uuid('app.user_id'::text))"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_bootstrap_lock",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "UPDATE",
+          "qual": "(id = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": "(id = hf_security.context_uuid('app.bootstrap_tenant_id'::text))"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_bootstrap_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_bootstrap}",
+          "cmd": "SELECT",
+          "qual": "(id = hf_security.context_uuid('app.bootstrap_tenant_id'::text))",
+          "with_check": null
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_runtime_lock",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "((id = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"tenantId\" = \"Tenant\".id) AND (m.\"userId\" = hf_security.context_uuid('app.user_id'::text)))))))",
+          "with_check": "((id = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"tenantId\" = \"Tenant\".id) AND (m.\"userId\" = hf_security.context_uuid('app.user_id'::text)))))))"
+        },
+        {
+          "tablename": "Tenant",
+          "policyname": "tenant_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((id = hf_security.tenant()) OR ((current_setting('app.access_path'::text, true) = 'session'::text) AND (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"tenantId\" = \"Tenant\".id) AND (m.\"userId\" = hf_security.context_uuid('app.user_id'::text)))))))",
+          "with_check": null
+        },
+        {
+          "tablename": "User",
+          "policyname": "fixture_test_only",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_test_fixture}",
+          "cmd": "ALL",
+          "qual": "(current_database() = 'hanoflow_test'::name)",
+          "with_check": "(current_database() = 'hanoflow_test'::name)"
+        },
+        {
+          "tablename": "User",
+          "policyname": "user_runtime_lock",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "UPDATE",
+          "qual": "(id = hf_security.context_uuid('app.user_id'::text))",
+          "with_check": "(id = hf_security.context_uuid('app.user_id'::text))"
+        },
+        {
+          "tablename": "User",
+          "policyname": "user_runtime_select",
+          "permissive": "PERMISSIVE",
+          "roles": "{hanoflow_runtime}",
+          "cmd": "SELECT",
+          "qual": "((id = hf_security.context_uuid('app.user_id'::text)) OR (EXISTS ( SELECT 1\n   FROM \"Membership\" m\n  WHERE ((m.\"userId\" = \"User\".id) AND (m.\"tenantId\" = hf_security.tenant())))))",
+          "with_check": null
+        }
+      ],
+      "grants": [
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "AuditEvent",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Permission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Role",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Role",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "RolePermission",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "RolePermission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_bootstrap",
+          "table_name": "Tenant",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AccessToken",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AccessToken",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AccessToken",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AccessToken",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AuditEvent",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AuditEvent",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AuditEvent",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "AuditEvent",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Membership",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Membership",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Membership",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Membership",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "MembershipRole",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "MembershipRole",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "MembershipRole",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "MembershipRole",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "PasswordCredential",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "PasswordCredential",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "PasswordCredential",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "PasswordCredential",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Permission",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Permission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RefreshToken",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RefreshToken",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RefreshToken",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RefreshToken",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Role",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Role",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Role",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Role",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RolePermission",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RolePermission",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RolePermission",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "RolePermission",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Session",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Session",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Session",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Session",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Tenant",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Tenant",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Tenant",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "Tenant",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "User",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "User",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "User",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "User",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_test_fixture",
+          "table_name": "_prisma_migrations",
+          "privilege_type": "SELECT"
+        }
+      ],
+      "columnGrants": [
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "contextVersion",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "contextVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "digest",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "digest",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "expiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "expiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "sessionId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AccessToken",
+          "column_name": "sessionId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "action",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "actorUserId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "correlationId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "metadata",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "outcome",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "scope",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "targetId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "targetType",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "AuditEvent",
+          "column_name": "tenantId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "joinedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "removedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "removedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "status",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "updatedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "updatedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Membership",
+          "column_name": "userId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedByUserId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "grantedByUserId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "membershipId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "membershipId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedByUserId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedByUserId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "removedByUserId",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "roleId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "roleId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "tenantId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "MembershipRole",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "column_name": "code",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "column_name": "description",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Permission",
+          "column_name": "scope",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "consumedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "consumedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "consumedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "contextVersion",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "contextVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "digest",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "digest",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "expiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "expiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "predecessorId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "predecessorId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "sessionId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RefreshToken",
+          "column_name": "sessionId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "code",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "name",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "templateVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Role",
+          "column_name": "updatedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "permissionCode",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "roleId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "scope",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "RolePermission",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "absoluteExpiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "absoluteExpiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "client",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "client",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "contextVersion",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "contextVersion",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "contextVersion",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "createdAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "id",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "idleExpiresAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "idleExpiresAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "idleExpiresAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "lastActivityAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "lastActivityAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "lastActivityAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "membershipId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "membershipId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "membershipId",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revocationReason",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revocationReason",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revocationReason",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revokedAt",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revokedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "revokedAt",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "scope",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "scope",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "scope",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "tenantId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "tenantId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "tenantId",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "userId",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Session",
+          "column_name": "userId",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "createdAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "id",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "name",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "slug",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "Tenant",
+          "column_name": "updatedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "emailVerifiedAt",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "id",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "id",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "hanoflow_runtime",
+          "table_name": "User",
+          "column_name": "status",
+          "privilege_type": "SELECT"
+        }
+      ],
+      "fixtureDevelopmentConnect": false,
+      "schemas": [
+        {
+          "nspname": "hf_security",
+          "owner": "hanoflow_migrator",
+          "nspacl": "{hanoflow_migrator=UC/hanoflow_migrator,hanoflow_runtime=U/hanoflow_migrator,hanoflow_bootstrap=U/hanoflow_migrator,hanoflow_test_fixture=U/hanoflow_migrator}"
+        },
+        {
+          "nspname": "public",
+          "owner": "hanoflow_migrator",
+          "nspacl": "{hanoflow_migrator=UC/hanoflow_migrator,hanoflow_runtime=U/hanoflow_migrator,hanoflow_bootstrap=U/hanoflow_migrator,hanoflow_test_fixture=U/hanoflow_migrator}"
+        }
+      ],
+      "functions": [
+        {
+          "proname": "context_uuid",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        },
+        {
+          "proname": "immutable_id",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator,hanoflow_test_fixture=X/hanoflow_migrator}"
+        },
+        {
+          "proname": "lookup_digest",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        },
+        {
+          "proname": "tenant",
+          "owner": "hanoflow_migrator",
+          "prosecdef": false,
+          "proconfig": ["search_path=pg_catalog"],
+          "proacl": "{hanoflow_migrator=X/hanoflow_migrator,hanoflow_runtime=X/hanoflow_migrator,hanoflow_bootstrap=X/hanoflow_migrator}"
+        }
+      ],
+      "triggers": [
+        {
+          "tgname": "tenant_immutable_id",
+          "definition": "CREATE TRIGGER tenant_immutable_id BEFORE UPDATE OF id ON public.\"Tenant\" FOR EACH ROW EXECUTE FUNCTION hf_security.immutable_id()"
+        },
+        {
+          "tgname": "user_immutable_id",
+          "definition": "CREATE TRIGGER user_immutable_id BEFORE UPDATE OF id ON public.\"User\" FOR EACH ROW EXECUTE FUNCTION hf_security.immutable_id()"
+        }
+      ],
+      "constraints": [
+        {
+          "conname": "AccessToken_context_check",
+          "definition": "CHECK ((\"contextVersion\" > 0))"
+        },
+        {
+          "conname": "AccessToken_digest_check",
+          "definition": "CHECK ((octet_length(digest) = 32))"
+        },
+        {
+          "conname": "AccessToken_time_check",
+          "definition": "CHECK ((\"createdAt\" < \"expiresAt\"))"
+        },
+        {
+          "conname": "AuditEvent_identifiers_check",
+          "definition": "CHECK (((btrim((action)::text, ' \t\n\r\f\u000b'::text) <> ''::text) AND (btrim((\"targetType\")::text, ' \t\n\r\f\u000b'::text) <> ''::text) AND ((\"targetId\" IS NULL) OR (btrim((\"targetId\")::text, ' \t\n\r\f\u000b'::text) <> ''::text))))"
+        },
+        {
+          "conname": "AuditEvent_metadata_check",
+          "definition": "CHECK (((metadata IS NULL) OR ((jsonb_typeof(metadata) = 'object'::text) AND (octet_length((metadata)::text) <= 4096))))"
+        },
+        {
+          "conname": "AuditEvent_scope_check",
+          "definition": "CHECK (((scope = 'TENANT'::\"AuditScope\") = (\"tenantId\" IS NOT NULL)))"
+        },
+        {
+          "conname": "MembershipRole_removal_check",
+          "definition": "CHECK ((((\"removedAt\" IS NULL) = (\"removedByUserId\" IS NULL)) AND ((\"removedAt\" IS NULL) OR (\"removedAt\" >= \"grantedAt\"))))"
+        },
+        {
+          "conname": "Membership_removal_chronology_check",
+          "definition": "CHECK (((\"removedAt\" IS NULL) OR (\"removedAt\" >= \"joinedAt\")))"
+        },
+        {
+          "conname": "Membership_removedAt_check",
+          "definition": "CHECK (((status = 'REMOVED'::\"MembershipStatus\") = (\"removedAt\" IS NOT NULL)))"
+        },
+        {
+          "conname": "PasswordCredential_hash_check",
+          "definition": "CHECK ((btrim((\"passwordHash\")::text) <> ''::text))"
+        },
+        {
+          "conname": "Permission_catalog_check",
+          "definition": "CHECK (((scope = 'TENANT'::\"PermissionScope\") AND ((code)::text = ANY ((ARRAY['tenant.memberships.read'::character varying, 'tenant.memberships.manage'::character varying, 'tenant.roles.read'::character varying, 'tenant.roles.assign'::character varying, 'tenant.ownership.manage'::character varying])::text[]))))"
+        },
+        {
+          "conname": "RefreshToken_consumption_check",
+          "definition": "CHECK (((\"consumedAt\" IS NULL) OR ((\"consumedAt\" >= \"createdAt\") AND (\"consumedAt\" < \"expiresAt\"))))"
+        },
+        {
+          "conname": "RefreshToken_context_check",
+          "definition": "CHECK ((\"contextVersion\" > 0))"
+        },
+        {
+          "conname": "RefreshToken_digest_check",
+          "definition": "CHECK ((octet_length(digest) = 32))"
+        },
+        {
+          "conname": "RefreshToken_lineage_check",
+          "definition": "CHECK (((\"predecessorId\" IS NULL) OR (\"predecessorId\" <> id)))"
+        },
+        {
+          "conname": "RefreshToken_time_check",
+          "definition": "CHECK ((\"createdAt\" < \"expiresAt\"))"
+        },
+        {
+          "conname": "RolePermission_scope_check",
+          "definition": "CHECK ((scope = 'TENANT'::\"PermissionScope\"))"
+        },
+        {
+          "conname": "Role_owner_active_check",
+          "definition": "CHECK (((code <> 'OWNER'::\"RoleTemplate\") OR (status = 'ACTIVE'::\"RoleStatus\")))"
+        },
+        {
+          "conname": "Role_template_check",
+          "definition": "CHECK (((\"templateVersion\" = 1) AND (btrim((name)::text) <> ''::text)))"
+        },
+        {
+          "conname": "Session_context_check",
+          "definition": "CHECK ((\"contextVersion\" > 0))"
+        },
+        {
+          "conname": "Session_revocation_check",
+          "definition": "CHECK ((((\"revokedAt\" IS NULL) = (\"revocationReason\" IS NULL)) AND ((\"revokedAt\" IS NULL) OR (\"revokedAt\" >= \"createdAt\"))))"
+        },
+        {
+          "conname": "Session_tenant_context_check",
+          "definition": "CHECK (((((scope)::text = 'IDENTITY'::text) AND (\"tenantId\" IS NULL) AND (\"membershipId\" IS NULL)) OR (((scope)::text = 'TENANT'::text) AND (\"tenantId\" IS NOT NULL) AND (\"membershipId\" IS NOT NULL))))"
+        },
+        {
+          "conname": "Session_time_check",
+          "definition": "CHECK (((\"createdAt\" <= \"lastActivityAt\") AND (\"lastActivityAt\" < \"idleExpiresAt\") AND (\"idleExpiresAt\" <= \"absoluteExpiresAt\")))"
+        },
+        {
+          "conname": "Tenant_name_check",
+          "definition": "CHECK ((btrim((name)::text, ' \t\n\r\f\u000b'::text) <> ''::text))"
+        },
+        {
+          "conname": "Tenant_slug_check",
+          "definition": "CHECK ((((slug)::text COLLATE \"C\") ~ '^[a-z0-9]+(-[a-z0-9]+)*$'::text))"
+        },
+        {
+          "conname": "User_canonicalEmail_check",
+          "definition": "CHECK ((((\"canonicalEmail\")::text <> ''::text) AND ((\"canonicalEmail\")::text = (lower((btrim((email)::text, ' \t\n\r\f\u000b'::text) COLLATE pg_unicode_fast)) COLLATE \"C\"))))"
+        }
+      ],
+      "defaultPrivileges": [
+        {
+          "role": "hanoflow_migrator",
+          "nspname": null,
+          "defaclobjtype": "f",
+          "defaclacl": "{hanoflow_migrator=X/hanoflow_migrator}"
+        }
+      ],
+      "migrations": [
+        {
+          "migration_name": "20261126190000_core_identity",
+          "checksum": "2c83680416255de3c430b30238525fc9b02b4dfedf96006e245cec3ccfb93bda",
+          "finished_at": "2026-11-26T18:11:21.327Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261126200000_password_credential",
+          "checksum": "e431694c00462c397cb225ea0f585b67e1ff751e0c551ad6f6facc40b32e4c9c",
+          "finished_at": "2026-11-26T18:37:47.009Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261126210000_sessions_and_tokens",
+          "checksum": "e28edb10b7357897b13b13fff79af431cc3fb899d28a7d39551c89b54968a233",
+          "finished_at": "2026-11-26T20:20:02.450Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261126220000_rbac_tenant_context",
+          "checksum": "e05e79a1ebda21adffce1e489fa2e5a1ec0f58c10f60647725c93be0283a72bc",
+          "finished_at": "2026-11-26T21:36:31.334Z",
+          "rolled_back_at": null
+        },
+        {
+          "migration_name": "20261127210000_restricted_runtime_rls",
+          "checksum": "50edaaabdb98a89c35b6ff7525c831279ecd0efe8a296d798304602ed0f21ca2",
+          "finished_at": null,
+          "rolled_back_at": "2026-11-27T20:17:46.192Z"
+        },
+        {
+          "migration_name": "20261127210000_restricted_runtime_rls",
+          "checksum": "1c460691b820a43917dc61777b39b0e187830e4e1308cae9d6bdcc75de6ea220",
+          "finished_at": "2026-11-27T20:17:48.058Z",
+          "rolled_back_at": null
+        }
+      ],
+      "counts": {
+        "AccessToken": 0,
+        "AuditEvent": 0,
+        "Membership": 0,
+        "MembershipRole": 0,
+        "PasswordCredential": 0,
+        "Permission": 5,
+        "RefreshToken": 0,
+        "Role": 0,
+        "RolePermission": 0,
+        "Session": 0,
+        "Tenant": 0,
+        "User": 0
+      }
+    }
+  ]
+}

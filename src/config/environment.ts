@@ -43,6 +43,17 @@ export class EnvironmentVariables {
 export function validateEnvironment(
   input: Record<string, unknown>,
 ): EnvironmentVariables {
+  if (
+    [
+      'DATABASE_MIGRATION_URL',
+      'TEST_DATABASE_MIGRATION_URL',
+      'TEST_DATABASE_FIXTURE_URL',
+      'POSTGRES_PASSWORD',
+    ].some((key) => input[key] !== undefined)
+  )
+    throw new Error(
+      'Privileged database credentials must not be loaded by runtime',
+    );
   const config = plainToInstance(EnvironmentVariables, {
     NODE_ENV: input.NODE_ENV ?? 'development',
     PORT: input.PORT === undefined ? 3000 : Number(input.PORT),

@@ -1,5 +1,11 @@
 # Core identity database foundation — Tasks 2.2 through 2.5
 
+Task 2.6 adds restricted-role RLS and immutable User/Tenant primary identifiers.
+Global identity/session access has explicit private paths; normal runtime has no
+PasswordCredential persistence access or unrestricted User/email access. Historical
+statements below about RLS deferral describe the earlier foundation. Current
+policies, fixture boundaries and future Auth integration are documented in [RLS](RLS.md).
+
 ## Boundary and approved direction
 
 User, Tenant, Membership, AuditEvent and PasswordCredential persistence is implemented. There
